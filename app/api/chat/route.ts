@@ -16,18 +16,17 @@ export async function POST(req: Request) {
     }),
   })
 
-  // 确保响应成功
   if (!response.ok) {
     return new Response(JSON.stringify({
       error: 'Failed to fetch from Deepseek API'
     }), { status: 500 })
   }
 
-  // 创建一个 TransformStream 来处理数据
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
   let buffer = ''
+  let lastContent = '' // 用于跟踪上一次的内容
 
   const transformStream = new TransformStream({
     async transform(chunk, controller) {
@@ -39,15 +38,18 @@ export async function POST(req: Request) {
       for (const line of lines) {
         const trimmedLine = line.trim()
         if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue
-
-        const data = trimmedLine.slice(6) // 移除 'data: ' 前缀
+        
+        const data = trimmedLine.slice(6)
         if (data === '[DONE]') continue
 
         try {
           const json = JSON.parse(data)
-          const content = json.choices?.[0]?.delta?.content || ''
-          if (content) {
+          const content = json.choices?.[0]?.delta?.content
+          
+          // 只有当内容不为空且与上一次不同时才发送
+          if (content && content !== lastContent) {
             controller.enqueue(encoder.encode(content))
+            lastContent = content
           }
         } catch (e) {
           console.error('Error parsing JSON:', e)

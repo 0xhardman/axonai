@@ -51,19 +51,22 @@ export default function Chat() {
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
 
+      let accumulatedContent = ''
+
       while (true) {
         const { done, value } = await reader!.read()
         if (done) break
 
         // 解码新的内容块
         const chunk = decoder.decode(value)
+        accumulatedContent += chunk
         
         // 更新最后一条消息的内容
         setMessages(prev => {
           const newMessages = [...prev]
           const lastMessage = newMessages[newMessages.length - 1]
           if (lastMessage.role === 'assistant') {
-            lastMessage.content += chunk
+            lastMessage.content = accumulatedContent
           }
           return newMessages
         })
