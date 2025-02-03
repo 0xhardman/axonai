@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^0.1.8",
     "ai": "^4.1.16",
     "next": "15.1.6",
     "react": "^19.0.0",
