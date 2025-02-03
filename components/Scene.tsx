@@ -27,30 +27,31 @@ export function Scene() {
 
   return (
     <div className="fixed left-0 top-1/2 -translate-y-1/2">
-      <div className="w-[500px] h-[500px] bg-gray-900">
+      <div className="w-[500px] h-[500px] border rounded-full">
         <Canvas style={{ width: "500px", height: "500px" }}>
           <CameraSetup />
           <OrbitControls
             ref={controlsRef}
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            target={[0, 0, 0]}
-            onChange={(e) => {
-              const camera = e.target.object;
-              setCameraInfo({
-                position: [
-                  Number(camera.position.x.toFixed(2)),
-                  Number(camera.position.y.toFixed(2)),
-                  Number(camera.position.z.toFixed(2))
-                ],
-                rotation: [
-                  Number(camera.rotation.x.toFixed(2)),
-                  Number(camera.rotation.y.toFixed(2)),
-                  Number(camera.rotation.z.toFixed(2))
-                ]
-              });
-            }}
+
+          // enableZoom={true}
+          // enablePan={true}
+          // enableRotate={true}
+          // target={[0, 0, 0]}
+          // onChange={(e) => {
+          //   const camera = e.target.object;
+          //   setCameraInfo({
+          //     position: [
+          //       Number(camera.position.x.toFixed(2)),
+          //       Number(camera.position.y.toFixed(2)),
+          //       Number(camera.position.z.toFixed(2))
+          //     ],
+          //     rotation: [
+          //       Number(camera.rotation.x.toFixed(2)),
+          //       Number(camera.rotation.y.toFixed(2)),
+          //       Number(camera.rotation.z.toFixed(2))
+          //     ]
+          //   });
+          // }}
           />
           <ambientLight intensity={0.7} />
           <directionalLight
