@@ -35,7 +35,7 @@ export function Scene() {
             <OrbitControls
               ref={controlsRef}
 
-            // enableZoom={true}
+              enableZoom={false}
             // enablePan={true}
             // enableRotate={true}
             // target={[0, 0, 0]}
