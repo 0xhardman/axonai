@@ -2,12 +2,16 @@
 
 import { Scene } from "@/components/Scene";
 import { ChatBox } from "@/components/ChatBox";
+import { MinecraftNav } from "@/components/MinecraftNav";
 
 export default function ChatPage() {
   return (
-    <div className="flex h-screen items-center justify-center gap-8 bg-gray-50">
-      <Scene />
-      <ChatBox />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <MinecraftNav />
+      <div className="flex-1 flex items-center justify-center gap-8 py-8">
+        <Scene />
+        <ChatBox />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Minecraft';
+  src: url('/fonts/minecraft.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-minecraft {
+  font-family: 'Minecraft', system-ui, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
