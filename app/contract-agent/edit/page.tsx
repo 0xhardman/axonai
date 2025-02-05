@@ -6,6 +6,7 @@ import { Scene } from "@/components/Scene";
 import { ContractSkills } from "@/components/ContractSkills";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -137,41 +138,43 @@ export default function EditContractAgentPage() {
   const handleDeploy = () => {
     // TODO: 实现部署逻辑
     console.log('Deploying contract with data:', contractData);
+    // Navigate to chat page
+    router.push('/chat');
   };
 
-  // 检查是否可以部署
-  const canDeploy = () => {
-    // 确保每种类型的 context 都存在且有内容
-    const hasAllContexts = ['Role', 'Goal', 'Backstory'].every(type =>
-      contractData.contexts.some(context => 
-        context.type === type && context.content.trim() !== ''
-      )
-    );
-    
-    // 确保至少有一个技能
-    const hasSkills = contractData.skills.length > 0;
+  // // 检查是否可以部署
+  // const canDeploy = () => {
+  //   // 确保每种类型的 context 都存在且有内容
+  //   const hasAllContexts = ['Role', 'Goal', 'Backstory'].every(type =>
+  //     contractData.contexts.some(context =>
+  //       context.type === type && context.content.trim() !== ''
+  //     )
+  //   );
 
-    return hasAllContexts && hasSkills;
-  };
+  //   // 确保至少有一个技能
+  //   const hasSkills = contractData.skills.length > 0;
+
+  //   return hasAllContexts && hasSkills;
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 flex items-start justify-center gap-8 p-8">
         <div className="sticky top-8">
           <Scene />
-          <div className="mt-4 bg-white rounded-lg shadow-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold">Contract Info</h3>
+          <Card className="mt-4 max-w-[40vw]">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-minecraft">Contract Info</CardTitle>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="minecraft" size="sm">
                     <Plus className="w-4 h-4 mr-1" />
                     Add Context
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className="font-minecraft">
                       {editingContextIndex !== null ? 'Edit Context' : 'Add Context'}
                     </DialogTitle>
                   </DialogHeader>
@@ -180,9 +183,9 @@ export default function EditContractAgentPage() {
                       {(['Role', 'Goal', 'Backstory'] as const).map((type) => (
                         <Button
                           key={type}
-                          variant={selectedContextType === type ? "default" : "outline"}
+                          variant={selectedContextType === type ? "minecraft" : "outline"}
                           onClick={() => handleContextSelect(type)}
-                          className="w-full"
+                          className="w-full font-minecraft"
                           disabled={isContextTypeExists(type)}
                         >
                           {type}
@@ -193,83 +196,92 @@ export default function EditContractAgentPage() {
                       value={editingContent}
                       onChange={(e) => setEditingContent(e.target.value)}
                       placeholder="Enter context content..."
-                      className="min-h-[100px]"
+                      className="min-h-[100px] font-minecraft"
                     />
                   </div>
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={handleCloseDialog}>
+                    <Button variant="outline" onClick={handleCloseDialog} className="font-minecraft">
                       Cancel
                     </Button>
                     <Button
+                      variant="minecraft"
                       onClick={handleSaveContext}
                       disabled={!selectedContextType || !editingContent.trim()}
+                      className="font-minecraft"
                     >
                       {editingContextIndex !== null ? 'Save' : 'Add'}
                     </Button>
                   </div>
                 </DialogContent>
               </Dialog>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm">
-                <span className="font-medium">Address:</span>{' '}
-                <span className="font-mono">{contractData.address}</span>
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Name:</span>{' '}
-                {contractData.name}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Skills:</span>{' '}
-                {contractData.skills.length}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Balance:</span>{' '}
-                0.1 ETH
-              </p>
-              {contractData.contexts.map((context, index) => (
-                <div key={index} className="text-sm flex items-center justify-between group">
-                  <p>
-                    <span className="font-medium">{context.type}:</span>{' '}
-                    <span className="text-gray-600">{context.content || '(Empty)'}</span>
-                  </p>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditContext(index)}
-                    >
-                      <Pencil className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteContext(index)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="grid gap-2 font-minecraft">
+                <div className="flex items-center text-sm">
+                  <span className="font-medium min-w-24">Address:</span>
+                  <span className="font-mono">{contractData.address}</span>
                 </div>
-              ))}
-            </div>
-            <div className="mt-6 pt-4 border-t">
-              <Button 
-                className="w-full"
-                size="lg"
-                onClick={handleDeploy}
-                disabled={!canDeploy()}
-              >
-                <Rocket className="w-4 h-4 mr-2" />
-                Deploy Contract Agent
-              </Button>
-              {!canDeploy() && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Please ensure you have added all contexts (Role, Goal, Backstory) and at least one skill before deploying.
-                </p>
-              )}
-            </div>
-          </div>
+                <div className="flex items-center text-sm">
+                  <span className="font-medium min-w-24">Name:</span>
+                  <span>{contractData.name}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="font-medium min-w-24">Skills:</span>
+                  <span>{contractData.skills.length}</span>
+                </div>
+                <div className="flex items-center text-sm">
+                  <span className="font-medium min-w-24">Balance:</span>
+                  <span>0.1 ETH</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-4">
+                {contractData.contexts.map((context, index) => (
+                  <div key={index} className="text-sm flex items-center justify-between group font-minecraft">
+                    <p>
+                      <span className="font-medium">{context.type}:</span>{' '}
+                      <span className="text-gray-600">{context.content || '(Empty)'}</span>
+                    </p>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditContext(index)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteContext(index)}
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-6 border-t mt-6">
+                <Button
+                  variant="minecraft"
+                  size="lg"
+                  onClick={handleDeploy}
+                  // disabled={!canDeploy()}
+                  className="w-full"
+                >
+                  Deploy
+                </Button>
+                {/* {!canDeploy() && (
+                  <p className="text-sm text-gray-500 mt-2 font-minecraft text-center">
+                    Click Deploy to create your contract agent
+                  </p>
+                )} */}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="flex-1 max-w-2xl">

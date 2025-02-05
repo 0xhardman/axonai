@@ -23,7 +23,7 @@ export function Scene() {
     position: [0, 0, -10],
     rotation: [0, 0, 0]
   });
-  const controlsRef = useRef();
+  const controlsRef = useRef(null);
 
   return (
     <div className="flex">
