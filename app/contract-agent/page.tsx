@@ -35,7 +35,7 @@ export default function ContractAgentPage() {
       }
 
       const contractInfo: ContractInfo = await response.json();
-      
+
       // Navigate to edit page with contract info
       router.push(`/contract-agent/edit?address=${contractAddress}&name=${encodeURIComponent(contractInfo.name)}&description=${encodeURIComponent(contractInfo.skillDescription)}`);
     } catch (err) {
@@ -48,10 +48,9 @@ export default function ContractAgentPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center gap-8 py-8">
-        <Scene />
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Contract Agent</h1>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="contractAddress" className="block text-sm font-medium text-gray-700 mb-2">
@@ -77,9 +76,8 @@ export default function ContractAgentPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
               {loading ? 'Loading...' : 'Next'}
             </button>

@@ -20,22 +20,22 @@ export function MinecraftNav() {
         {/* Navigation Links */}
         <div className="flex items-center gap-8">
           <Link 
+            href="/contract-agent" 
+            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+          >
+            Create
+          </Link>
+          <Link 
+            href="/contract-agent/list" 
+            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+          >
+            List
+          </Link>
+          <Link 
             href="/chat" 
             className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             Chat
-          </Link>
-          <Link 
-            href="/models" 
-            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
-          >
-            Models
-          </Link>
-          <Link 
-            href="/about" 
-            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
-          >
-            About
           </Link>
         </div>
 
