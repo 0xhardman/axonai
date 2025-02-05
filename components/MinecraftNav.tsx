@@ -40,7 +40,7 @@ export function MinecraftNav() {
         </div>
 
         {/* Login Button */}
-        <button className="bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft px-6 py-2 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5">
+        <button className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft px-6 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5">
           Login
         </button>
       </div>
