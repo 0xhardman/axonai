@@ -93,7 +93,7 @@ class Token {
   }
 
   public static invalid() {
-    let res = new Token();
+    const res = new Token();
     res.value = "";
     return res;
   }

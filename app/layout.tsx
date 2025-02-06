@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MinecraftNav } from "@/components/MinecraftNav";
 import { RainbowProvider } from "@/components/rainbow-kit";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <RainbowProvider>
           <MinecraftNav />
           {children}
+          <Toaster />
         </RainbowProvider>
       </body>
     </html>

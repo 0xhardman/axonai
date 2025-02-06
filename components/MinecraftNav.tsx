@@ -2,8 +2,51 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { useAccount, useSignMessage } from 'wagmi';
+import { message } from '@/api/GetLoginMessage';
+import { login } from '@/api/Login';
+import { setupToken, DefaultTokenType } from '@/lib/auth';
+import { useToast } from "@/hooks/use-toast";
 
 export function MinecraftNav() {
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const handleLogin = async () => {
+      if (!isConnected || !address) return;
+
+      try {
+        // 1. Get login message
+        const { message: loginMessage } = await message({ address });
+
+        // 2. Sign the message
+        const signature = await signMessageAsync({ message: loginMessage });
+
+        // 3. Login with signature
+        const { token } = await login({
+          signature,
+          message: loginMessage,
+          address
+        });
+
+        // 4. Setup token in auth system with default type
+        setupToken(token);
+      } catch (error) {
+        console.error('Login failed:', error);
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: error instanceof Error ? error.message : "Failed to login with wallet",
+        });
+      }
+    };
+
+    handleLogin();
+  }, [address, isConnected, signMessageAsync, toast]);
+
   return (
     <nav className="bg-[#1D1D1D] border-b-2 border-[#373737] px-6 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
