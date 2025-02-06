@@ -8,6 +8,7 @@ import { ContractSkills } from "@/components/ContractSkills";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Rocket } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { getAgentDetail } from '@/api/GetAgentDetail';
+import { editAgent } from '@/api/EditAgent';
 
 type ContextType = 'Role' | 'Goal' | 'Backstory';
 
@@ -25,16 +28,25 @@ interface ContractContext {
 }
 
 interface Skill {
-  id: string;
   name: string;
   description: string;
+  workflow: string[];
+}
+
+interface Backstory {
+  name: string;
+  content: string;
 }
 
 interface ContractData {
+  id: string;
+  chainId: string;
   address: string;
   name: string;
+  description: string;
   skills: Skill[];
-  contexts: ContractContext[];
+  backstories: Backstory[];
+  state: number;
 }
 
 export default function EditContractAgentPage() {
@@ -62,86 +74,111 @@ export default function EditContractAgentPage() {
 function EditContractAgentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedContextType, setSelectedContextType] = useState<ContextType | null>(null);
   const [editingContextIndex, setEditingContextIndex] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState('');
 
-  const [contractData, setContractData] = useState<ContractData>({
-    address: '',
-    name: '',
-    skills: [],
-    contexts: []
-  });
+  const [contractData, setContractData] = useState<ContractData | null>(null);
 
   useEffect(() => {
-    const address = searchParams.get('address') || '';
-    const name = searchParams.get('name') || '';
+    const agentId = searchParams.get('id');
+    if (!agentId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No agent ID provided",
+      });
+      router.push('/contract-agent');
+      return;
+    }
 
-    setContractData(prev => ({
-      ...prev,
-      address,
-      name,
-    }));
-  }, [searchParams]);
+    const fetchAgentData = async () => {
+      try {
+        setLoading(true);
+        const data = await getAgentDetail(agentId);
+        setContractData(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch agent data';
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgentData();
+  }, [searchParams, router, toast]);
 
   const handleSkillsUpdate = (skills: Skill[]) => {
+    if (!contractData) return;
     setContractData(prev => ({
-      ...prev,
+      ...prev!,
       skills
     }));
   };
 
   const handleContextSelect = (type: ContextType) => {
-    // 如果正在编辑，允许选择当前类型
-    if (editingContextIndex !== null && contractData.contexts[editingContextIndex].type === type) {
+    if (editingContextIndex !== null && contractData?.backstories[editingContextIndex]?.name === type) {
       setSelectedContextType(type);
       return;
     }
 
-    // 检查是否已存在该类型的 context
-    const exists = contractData.contexts.some(context => context.type === type);
+    const exists = contractData?.backstories.some(story => story.name === type);
     if (!exists) {
       setSelectedContextType(type);
     }
   };
 
   const handleSaveContext = () => {
-    if (selectedContextType) {
-      if (editingContextIndex !== null) {
-        // Edit existing context
-        setContractData(prev => {
-          const newContexts = [...prev.contexts];
-          newContexts[editingContextIndex] = {
-            type: selectedContextType,
-            content: editingContent
-          };
-          return { ...prev, contexts: newContexts };
-        });
-      } else {
-        // Add new context
-        setContractData(prev => ({
+    if (!contractData || !selectedContextType) return;
+
+    if (editingContextIndex !== null) {
+      // Edit existing context
+      setContractData(prev => {
+        if (!prev) return prev;
+        const newBackstories = [...prev.backstories];
+        newBackstories[editingContextIndex] = {
+          name: selectedContextType,
+          content: editingContent
+        };
+        return { ...prev, backstories: newBackstories };
+      });
+    } else {
+      // Add new context
+      setContractData(prev => {
+        if (!prev) return prev;
+        return {
           ...prev,
-          contexts: [...prev.contexts, { type: selectedContextType, content: editingContent }]
-        }));
-      }
-      handleCloseDialog();
+          backstories: [...prev.backstories, { name: selectedContextType, content: editingContent }]
+        };
+      });
     }
+    handleCloseDialog();
   };
 
   const handleEditContext = (index: number) => {
-    const context = contractData.contexts[index];
+    if (!contractData) return;
+    const story = contractData.backstories[index];
     setEditingContextIndex(index);
-    setSelectedContextType(context.type);
-    setEditingContent(context.content);
+    setSelectedContextType(story.name as ContextType);
+    setEditingContent(story.content);
     setIsDialogOpen(true);
   };
 
   const handleDeleteContext = (index: number) => {
-    setContractData(prev => ({
-      ...prev,
-      contexts: prev.contexts.filter((_, i) => i !== index)
-    }));
+    setContractData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        backstories: prev.backstories.filter((_, i) => i !== index)
+      };
+    });
   };
 
   const handleCloseDialog = () => {
@@ -151,34 +188,59 @@ function EditContractAgentContent() {
     setEditingContextIndex(null);
   };
 
-  // 检查某个类型是否已存在
   const isContextTypeExists = (type: ContextType) => {
-    return contractData.contexts.some(context =>
-      context.type === type && (editingContextIndex === null || contractData.contexts[editingContextIndex].type !== type)
+    if (!contractData) return false;
+    return contractData.backstories.some(story =>
+      story.name === type && (editingContextIndex === null || contractData.backstories[editingContextIndex].name !== type)
     );
   };
 
-  const handleDeploy = () => {
-    // TODO: 实现部署逻辑
-    console.log('Deploying contract with data:', contractData);
-    // Navigate to chat page
-    router.push('/chat');
+  const handleSave = async () => {
+    if (!contractData) return;
+
+    try {
+      setLoading(true);
+      await editAgent({
+        id: contractData.id,
+        chainId: parseInt(contractData.chainId),
+        address: contractData.address,
+        name: contractData.name,
+        description: contractData.description,
+        skills: contractData.skills,
+        backstories: contractData.backstories
+      });
+
+      toast({
+        title: "Success",
+        description: "Agent updated successfully",
+      });
+
+      router.push('/chat');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update agent';
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // // 检查是否可以部署
-  // const canDeploy = () => {
-  //   // 确保每种类型的 context 都存在且有内容
-  //   const hasAllContexts = ['Role', 'Goal', 'Backstory'].every(type =>
-  //     contractData.contexts.some(context =>
-  //       context.type === type && context.content.trim() !== ''
-  //     )
-  //   );
-
-  //   // 确保至少有一个技能
-  //   const hasSkills = contractData.skills.length > 0;
-
-  //   return hasAllContexts && hasSkills;
-  // };
+  if (!contractData) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="pt-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -250,21 +312,21 @@ function EditContractAgentContent() {
                     <span>{contractData.name}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <span className="font-medium min-w-24">Skills:</span>
-                    <span>{contractData.skills.length}</span>
+                    <span className="font-medium min-w-24">Description:</span>
+                    <span>{contractData.description}</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <span className="font-medium min-w-24">Balance:</span>
-                    <span>0.1 ETH</span>
+                    <span className="font-medium min-w-24">Skills:</span>
+                    <span>{contractData.skills.length}</span>
                   </div>
                 </div>
 
                 <div className="space-y-2 pt-4">
-                  {contractData.contexts.map((context, index) => (
+                  {contractData.backstories.map((story, index) => (
                     <div key={index} className="text-sm flex items-center justify-between group font-minecraft">
                       <p>
-                        <span className="font-medium">{context.type}:</span>{' '}
-                        <span className="text-gray-600">{context.content || '(Empty)'}</span>
+                        <span className="font-medium">{story.name}:</span>{' '}
+                        <span className="text-gray-600">{story.content || '(Empty)'}</span>
                       </p>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -292,17 +354,12 @@ function EditContractAgentContent() {
                   <Button
                     variant="minecraft"
                     size="lg"
-                    onClick={handleDeploy}
-                    // disabled={!canDeploy()}
+                    onClick={handleSave}
+                    disabled={loading}
                     className="w-full"
                   >
-                    Deploy
+                    {loading ? 'Saving...' : 'Save Changes'}
                   </Button>
-                  {/* {!canDeploy() && (
-                    <p className="text-sm text-gray-500 mt-2 font-minecraft text-center">
-                      Click Deploy to create your contract agent
-                    </p>
-                  )} */}
                 </div>
               </CardContent>
             </Card>
@@ -313,6 +370,7 @@ function EditContractAgentContent() {
               contractAddress={contractData.address}
               contractName={contractData.name}
               onSkillsUpdate={handleSkillsUpdate}
+              initialSkills={contractData.skills}
             />
           </div>
         </div>

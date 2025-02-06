@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { createAgent } from '@/api/ContractAgent';
+import { useToast } from "@/hooks/use-toast";
 
 interface ContractInfo {
   name: string;
@@ -12,6 +14,7 @@ interface ContractInfo {
 
 export default function ContractAgentPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [contractAddress, setContractAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,22 +25,27 @@ export default function ContractAgentPage() {
     setError('');
 
     try {
-      // Mock response
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟网络延迟
-      
       if (!contractAddress.startsWith('0x') || contractAddress.length !== 42) {
         throw new Error('Invalid contract address format');
       }
 
-      const contractInfo: ContractInfo = {
-        name: "Sample Contract",
-        skillDescription: "This is a sample smart contract with basic functionality."
-      };
+      // 创建 agent
+      const agent = await createAgent({
+        chainId: 1, // 默认使用以太坊主网
+        address: contractAddress,
+        backstories: [] // 初始化时没有背景故事
+      });
 
-      // Navigate to edit page with contract info
-      router.push(`/contract-agent/edit?address=${contractAddress}&name=${encodeURIComponent(contractInfo.name)}&description=${encodeURIComponent(contractInfo.skillDescription)}`);
+      // 导航到编辑页面，只传入 agent id
+      router.push(`/contract-agent/edit?id=${agent.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create agent';
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
