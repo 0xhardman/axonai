@@ -1,7 +1,5 @@
 import { authGet } from "@/lib/auth";
 
-const API = '/api';
-
 interface ChatAgent {
   agentId: string;
   state: number;
@@ -56,6 +54,6 @@ interface GetChatDetailReq {
 }
 
 export const getChatDetail = authGet<GetChatDetailReq, ChatDetailResp>(
-  API,
+  '/api',
   `/chat/detail`
 );

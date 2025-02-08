@@ -1,6 +1,4 @@
-import { post } from "@/lib/auth";
-
-const API_ENDPOINT = '/api';
+import { authPost } from "@/lib/auth";
 
 interface LoginReq {
   signature: string;
@@ -21,7 +19,7 @@ interface LoginResp {
   agent: Agent;
 }
 
-export const login = post<LoginReq, LoginResp>(
-  API_ENDPOINT,
+export const login = authPost<LoginReq, LoginResp>(
+  '/api',
   `/auth/login`
 );

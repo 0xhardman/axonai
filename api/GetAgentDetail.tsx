@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authGet } from "@/lib/auth";
 
-const API = '/api';
-
 interface Skill {
   name: string;
   description: string;
@@ -32,8 +30,8 @@ interface GetAgentDetailReq {
   id: string;
 }
 
-export const getAgentDetail = (id: string) => 
+export const getAgentDetail = (id: string) =>
   authGet<GetAgentDetailReq, AgentResp>(
-    API,
+    '/api',
     `/contract/agent/${id}`
   )({ id });

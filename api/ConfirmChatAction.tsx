@@ -1,11 +1,6 @@
 
 import { authPost } from "@/lib/auth";
 
-const BE_API = process.env.NEXT_PUBLIC_BE_API;
-if (!BE_API) {
-  throw new Error('NEXT_PUBLIC_BE_API environment variable is not set');
-}
-
 interface TransactionOptions {
   a: string;
 }
@@ -29,6 +24,6 @@ interface ConfirmActionResp {
 }
 
 export const confirmChatAction = authPost<ConfirmActionReq, ConfirmActionResp>(
-  BE_API,
+  '/api',
   `/chat/action/confirm`
 );
