@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { del, get, Itf, post, put } from "./api";
 import JWT from "jsonwebtoken";
 import {

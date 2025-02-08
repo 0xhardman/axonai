@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from 'react';
 import { sendMessage } from '@/api/SendMessage';
 import { getChatHistory } from '@/api/GetChatHistory';
@@ -64,9 +65,9 @@ export function ChatBox() {
       if (pendingAction) {
         setConfirmationData({
           actionId: pendingAction.id,
-          txData: pendingAction.tx
+          txData: pendingAction.task.tx
         });
-        setTxJsonContent(JSON.stringify(pendingAction.tx, null, 2));
+        setTxJsonContent(JSON.stringify(pendingAction.task.tx, null, 2));
       }
     } catch (error) {
       console.error('Failed to load chat history:', error);
