@@ -31,7 +31,7 @@ export default function ContractAgentPage() {
 
       // 创建 agent
       const agent = await createAgent({
-        chainId: 1, // 默认使用以太坊主网
+        chainId: 8453, // 默认使用以太坊主网
         address: contractAddress,
         backstories: [] // 初始化时没有背景故事
       });

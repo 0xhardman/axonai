@@ -130,7 +130,7 @@ export function ChatBox() {
       const response = await sendMessage({
         message: input,
         chatId: currentChatIdState || '',
-        chainId: 1 // 默认使用 chainId 1，如果需要可以从配置或其他地方获取
+        chainId: 8453 // 默认使用 chainId 1，如果需要可以从配置或其他地方获取
       });
 
       // 如果是新对话，从响应中获取chatId并开始轮询
