@@ -5,6 +5,7 @@ import { getChatHistory } from '@/api/GetChatHistory';
 import { confirmChatAction } from '@/api/ConfirmChatAction';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
+import { useAccount } from 'wagmi';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ export function ChatBox() {
   const pollingRef = useRef<NodeJS.Timeout>(null);
   const currentChatId = searchParams.get('chatId') || undefined;
   const [currentChatIdState, setCurrentChatIdState] = useState<string | undefined>(currentChatId);
+  const { chain } = useAccount();
 
   const fetchChatHistory = async (id: string) => {
     try {
@@ -130,7 +132,7 @@ export function ChatBox() {
       const response = await sendMessage({
         message: input,
         chatId: currentChatIdState || '',
-        chainId: 8453 // 默认使用 chainId 1，如果需要可以从配置或其他地方获取
+        chainId: chain?.id || 8453 // Use connected wallet's chain ID, fallback to Base
       });
 
       // 如果是新对话，从响应中获取chatId并开始轮询

@@ -8,7 +8,9 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import {
-  base
+  base,
+  optimism,
+  mainnet,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -19,7 +21,7 @@ import {
 export const config = getDefaultConfig({
   appName: 'Axon AI',
   projectId: 'a1fc63f578160e84914e2f3788fc6c58',
-  chains: [base],
+  chains: [mainnet, optimism, base],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

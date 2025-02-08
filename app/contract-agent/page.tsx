@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { createAgent } from '@/api/ContractAgent';
 import { useToast } from "@/hooks/use-toast";
+import { useAccount } from 'wagmi';
 
 interface ContractInfo {
   name: string;
@@ -15,6 +16,7 @@ interface ContractInfo {
 export default function ContractAgentPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { chain } = useAccount();
   const [contractAddress, setContractAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,9 +33,9 @@ export default function ContractAgentPage() {
 
       // 创建 agent
       const agent = await createAgent({
-        chainId: 8453, // 默认使用以太坊主网
+        chainId: chain?.id || 8453,
         address: contractAddress,
-        backstories: [] // 初始化时没有背景故事
+        backstories: []
       });
 
       // 导航到编辑页面，只传入 agent id
