@@ -23,5 +23,7 @@ interface AgentListResp {
   agents: AgentListItem[];
 }
 
-export const getAgentList = () => 
-  authGet<void, AgentListResp>(BE_API, `/contract/agents`)();
+export const getAgentList = authGet<void, AgentListResp>(
+  '/api',
+  `/contract/agent/list`
+);

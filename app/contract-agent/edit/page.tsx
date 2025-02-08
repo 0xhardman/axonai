@@ -34,7 +34,7 @@ interface Skill {
 }
 
 interface Backstory {
-  name: string;
+  title: string;
   content: string;
 }
 
@@ -124,12 +124,12 @@ function EditContractAgentContent() {
   };
 
   const handleContextSelect = (type: ContextType) => {
-    if (editingContextIndex !== null && contractData?.backstories[editingContextIndex]?.name === type) {
+    if (editingContextIndex !== null && contractData?.backstories[editingContextIndex]?.title === type) {
       setSelectedContextType(type);
       return;
     }
 
-    const exists = contractData?.backstories.some(story => story.name === type);
+    const exists = contractData?.backstories.some(story => story.title === type);
     if (!exists) {
       setSelectedContextType(type);
     }
@@ -144,7 +144,7 @@ function EditContractAgentContent() {
         if (!prev) return prev;
         const newBackstories = [...prev.backstories];
         newBackstories[editingContextIndex] = {
-          name: selectedContextType,
+          title: selectedContextType,
           content: editingContent
         };
         return { ...prev, backstories: newBackstories };
@@ -155,7 +155,7 @@ function EditContractAgentContent() {
         if (!prev) return prev;
         return {
           ...prev,
-          backstories: [...prev.backstories, { name: selectedContextType, content: editingContent }]
+          backstories: [...prev.backstories, { title: selectedContextType, content: editingContent }]
         };
       });
     }
@@ -166,7 +166,7 @@ function EditContractAgentContent() {
     if (!contractData) return;
     const story = contractData.backstories[index];
     setEditingContextIndex(index);
-    setSelectedContextType(story.name as ContextType);
+    setSelectedContextType(story.title as ContextType);
     setEditingContent(story.content);
     setIsDialogOpen(true);
   };
@@ -191,17 +191,17 @@ function EditContractAgentContent() {
   const isContextTypeExists = (type: ContextType) => {
     if (!contractData) return false;
     return contractData.backstories.some(story =>
-      story.name === type && (editingContextIndex === null || contractData.backstories[editingContextIndex].name !== type)
+      story.title === type && (editingContextIndex === null || contractData.backstories[editingContextIndex].title !== type)
     );
   };
 
   const handleSave = async () => {
     if (!contractData) return;
-
+    console.log(contractData);
     try {
       setLoading(true);
       await editAgent({
-        id: contractData.id,
+        agentId: contractData.id,
         chainId: parseInt(contractData.chainId),
         address: contractData.address,
         name: contractData.name,
@@ -243,7 +243,7 @@ function EditContractAgentContent() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardContent className="pt-6">
         <div className="flex-1 flex items-start justify-center gap-8 p-8">
           <div className="sticky top-8">
@@ -305,13 +305,13 @@ function EditContractAgentContent() {
                 <div className="grid gap-2 font-minecraft">
                   <div className="flex items-center text-sm">
                     <span className="font-medium min-w-24">Address:</span>
-                    <span className="font-mono">{contractData.address}</span>
+                    <span>{contractData.address}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <span className="font-medium min-w-24">Name:</span>
                     <span>{contractData.name}</span>
                   </div>
-                  <div className="flex items-center text-sm">
+                  <div className="flex items-start text-sm">
                     <span className="font-medium min-w-24">Description:</span>
                     <span>{contractData.description}</span>
                   </div>
@@ -325,7 +325,7 @@ function EditContractAgentContent() {
                   {contractData.backstories.map((story, index) => (
                     <div key={index} className="text-sm flex items-center justify-between group font-minecraft">
                       <p>
-                        <span className="font-medium">{story.name}:</span>{' '}
+                        <span className="font-medium">{story.title}:</span>{' '}
                         <span className="text-gray-600">{story.content || '(Empty)'}</span>
                       </p>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,10 +1,6 @@
-
 import { authGet } from "@/lib/auth";
 
-const BE_API = process.env.NEXT_PUBLIC_BE_API;
-if (!BE_API) {
-  throw new Error('NEXT_PUBLIC_BE_API environment variable is not set');
-}
+const API = '/api';
 
 interface ChatAgent {
   agentId: string;
@@ -55,5 +51,11 @@ interface ChatDetailResp {
   messages: ChatMessage[];
 }
 
-export const getChatDetail = (chatId: string) =>
-  authGet<void, ChatDetailResp>(BE_API, `/chat/${chatId}`)();
+interface GetChatDetailReq {
+  chatId: string;
+}
+
+export const getChatDetail = authGet<GetChatDetailReq, ChatDetailResp>(
+  API,
+  `/chat/detail`
+);

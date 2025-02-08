@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { authGet } from "@/lib/auth";
 
-const BE_API = process.env.NEXT_PUBLIC_BE_API;
-if (!BE_API) {
-  throw new Error('NEXT_PUBLIC_BE_API environment variable is not set');
-}
+const API = '/api';
 
 interface Skill {
   name: string;
@@ -13,7 +10,7 @@ interface Skill {
 }
 
 interface Backstory {
-  name: string;
+  title: string;
   content: string;
 }
 
@@ -31,5 +28,12 @@ interface AgentResp {
   state: number;
 }
 
+interface GetAgentDetailReq {
+  id: string;
+}
+
 export const getAgentDetail = (id: string) => 
-  authGet<void, AgentResp>(BE_API, `/contract/agent/${id}`)();
+  authGet<GetAgentDetailReq, AgentResp>(
+    API,
+    `/contract/agent/${id}`
+  )({ id });

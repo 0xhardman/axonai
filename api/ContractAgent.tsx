@@ -7,7 +7,7 @@ if (!BE_API) {
 }
 
 interface Backstory {
-  name: string;
+  title: string;
   content: string;
 }
 
@@ -38,6 +38,6 @@ interface AgentResp {
 }
 
 export const createAgent = authPost<CreateAgentReq, AgentResp>(
-  BE_API,
+  '/api',
   `/contract/agent/create`
 );

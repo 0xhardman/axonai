@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { authPost } from "@/lib/auth";
 
 const BE_API = process.env.NEXT_PUBLIC_BE_API;
@@ -10,7 +10,12 @@ interface DeleteAgentReq {
   agentId: string;
 }
 
-export const deleteAgent = authPost<DeleteAgentReq, void>(
-  BE_API,
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface DeleteAgentResp {
+  // Add properties of DeleteAgentResp here
+}
+
+export const deleteAgent = authPost<DeleteAgentReq, DeleteAgentResp>(
+  '/api',
   `/contract/agent/delete`
 );

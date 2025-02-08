@@ -13,12 +13,14 @@ interface Skill {
 }
 
 interface Backstory {
-  name: string;
+  title: string;
   content: string;
 }
 
 interface EditAgentReq {
   agentId: string;
+  chainId: number;
+  address: string;
   name: string;
   description: string;
   skills: Skill[];
@@ -40,6 +42,6 @@ interface AgentResp {
 }
 
 export const editAgent = authPost<EditAgentReq, AgentResp>(
-  BE_API,
+  '/api',
   `/contract/agent/edit`
 );

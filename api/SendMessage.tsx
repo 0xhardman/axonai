@@ -19,6 +19,6 @@ interface SendMessageResp {
 }
 
 export const sendMessage = authPost<SendMessageReq, SendMessageResp>(
-  BE_API,
+  '/api',
   `/chat/send`
 );
