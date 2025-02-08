@@ -142,15 +142,37 @@ export function setupToken(
   save = true
 ) {
   token = Token.create(token);
-  if (!token.isValid()) return;
+  console.log("Token created:", token);
+  
+  if (!token.isValid()) {
+    console.log("Token is not valid");
+    return;
+  }
 
-  if (save) console.log("setupToken", token, type);
+  console.log("Setting up token", {
+    type,
+    save,
+    tokenValue: token.value,
+    tokenData: token.data,
+    storageKey: `${TokenKey}-${type}`
+  });
 
   _tokens[type] = token;
 
   // 有次数限制就不保存
   save = save && (token.data.count == -1 || token.data.count == undefined);
-  if (save) setLocalStorage(`${TokenKey}-${type}`, token.value);
+  if (save) {
+    console.log("Saving token to localStorage", {
+      key: `${TokenKey}-${type}`,
+      value: token.value
+    });
+    setLocalStorage(`${TokenKey}-${type}`, token.value);
+  } else {
+    console.log("Not saving token because:", {
+      save,
+      count: token.data.count
+    });
+  }
 }
 
 export function removeToken(type: TokenType = DefaultTokenType) {

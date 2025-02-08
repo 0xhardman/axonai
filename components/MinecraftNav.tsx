@@ -33,7 +33,11 @@ export function MinecraftNav() {
         });
 
         // 4. Setup token in auth system with default type
-        setupToken(token);
+        setupToken(token, "login");
+        toast({
+          title: "Login Successful",
+          description: "You have successfully logged in with your wallet",
+        });
       } catch (error) {
         console.error('Login failed:', error);
         toast({
