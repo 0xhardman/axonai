@@ -31,7 +31,7 @@ export function authGet<I = any, O = any>(
 ): Itf<I, O> {
   return (d, h) =>
     get<I, O>(host, url)(d, {
-      [AuthorizationKey]: `${useToken(type)}`,
+      [AuthorizationKey]: `Bearer ${useToken(type)}`,
       ...h,
     });
 }
@@ -42,7 +42,7 @@ export function authPost<I = any, O = any>(
 ): Itf<I, O> {
   return (d, h) =>
     post<I, O>(host, url)(d, {
-      [AuthorizationKey]: `${useToken(type)}`,
+      [AuthorizationKey]: `Bearer ${useToken(type)}`,
       ...h,
     });
 }
@@ -52,7 +52,7 @@ export function authPut<I = any, O = any>(
 ): Itf<I, O> {
   return (d, h) =>
     put<I, O>(url)(d, {
-      [AuthorizationKey]: `${useToken(type)}`,
+      [AuthorizationKey]: `Bearer ${useToken(type)}`,
       ...h,
     });
 }
@@ -62,7 +62,7 @@ export function authDel<I = any, O = any>(
 ): Itf<I, O> {
   return (d, h) =>
     del<I, O>(url)(d, {
-      [AuthorizationKey]: `${useToken(type)}`,
+      [AuthorizationKey]: `Bearer ${useToken(type)}`,
       ...h,
     });
 }
@@ -72,11 +72,26 @@ class Token {
   public data!: Payload;
 
   public isValid() {
-    return (
-      (!this.isOutOfDate() && this.data.count == null) ||
-      this.data.count == -1 ||
-      this.data.count > 0
-    );
+    const isOutOfDate = this.isOutOfDate();
+    const count = this.data.count;
+
+    console.log("Token validation check:", {
+      isOutOfDate,
+      count,
+      data: this.data
+    });
+
+    if (isOutOfDate) {
+      console.log("Token is out of date");
+      return false;
+    }
+
+    if (count != null && count !== -1 && count <= 0) {
+      console.log("Token count is invalid:", count);
+      return false;
+    }
+
+    return true;
   }
 
   public isOutOfDate() {
@@ -143,7 +158,7 @@ export function setupToken(
 ) {
   token = Token.create(token);
   console.log("Token created:", token);
-  
+
   if (!token.isValid()) {
     console.log("Token is not valid");
     return;

@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 import { message } from '@/api/GetLoginMessage';
 import { login } from '@/api/Login';
-import { setupToken, DefaultTokenType } from '@/lib/auth';
+import { setupToken, getToken, DefaultTokenType } from '@/lib/auth';
 import { useToast } from "@/hooks/use-toast";
 
 export function MinecraftNav() {
@@ -17,6 +17,13 @@ export function MinecraftNav() {
   useEffect(() => {
     const handleLogin = async () => {
       if (!isConnected || !address) return;
+
+      // Check if we already have a valid token
+      const existingToken = getToken("login");
+      if (existingToken?.isValid()) {
+        console.log("Already have valid token, skipping login");
+        return;
+      }
 
       try {
         // 1. Get login message
