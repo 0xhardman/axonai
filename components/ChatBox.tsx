@@ -1,8 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { sendMessage } from '@/api/SendMessage';
 import { getChatHistory } from '@/api/GetChatHistory';
+import { confirmChatAction } from '@/api/ConfirmChatAction';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Message {
   id: string | number;
@@ -10,16 +20,24 @@ interface Message {
   content: string;
 }
 
+interface ActionConfirmation {
+  actionId: string;
+  txData: any;
+}
+
 export function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [agentState, setAgentState] = useState<string>('');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<ActionConfirmation | null>(null);
+  const [txJsonContent, setTxJsonContent] = useState('');
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const chatId = searchParams.get('chatId') || undefined;
-  const pollingRef = useRef<NodeJS.Timeout>();
-  const [currentChatId, setCurrentChatId] = useState<string | undefined>(chatId);
+  const pollingRef = useRef<NodeJS.Timeout>(null);
+  const currentChatId = searchParams.get('chatId') || undefined;
+  const [currentChatIdState, setCurrentChatIdState] = useState<string | undefined>(currentChatId);
 
   const fetchChatHistory = async (id: string) => {
     try {
@@ -33,13 +51,23 @@ export function ChatBox() {
       }
 
       // 设置消息历史
-      const historicalMessages = response.messages.map(msg => ({
+      const historicalMessages: Message[] = response.messages.map(msg => ({
         id: msg.id,
-        role: msg.agentId ? 'ai' : 'user',
+        role: msg.agentId ? 'ai' : 'user' as const,
         content: msg.content
       }));
       console.log('Historical messages:', historicalMessages);
       setMessages(historicalMessages);
+
+      // Check for actions requiring confirmation
+      const pendingAction = response.actions?.find(action => action.state === 3);
+      if (pendingAction) {
+        setConfirmationData({
+          actionId: pendingAction.id,
+          txData: pendingAction.tx
+        });
+        setTxJsonContent(JSON.stringify(pendingAction.tx, null, 2));
+      }
     } catch (error) {
       console.error('Failed to load chat history:', error);
       toast({
@@ -55,10 +83,10 @@ export function ChatBox() {
     let isPolling = true;
 
     const poll = async () => {
-      if (!isPolling || !currentChatId) return;
+      if (!isPolling || !currentChatIdState) return;
 
       try {
-        await fetchChatHistory(currentChatId);
+        await fetchChatHistory(currentChatIdState);
       } finally {
         if (isPolling) {
           pollingRef.current = setTimeout(poll, 2000);
@@ -66,7 +94,7 @@ export function ChatBox() {
       }
     };
 
-    if (currentChatId) {
+    if (currentChatIdState) {
       poll(); // 开始轮询
     }
 
@@ -76,11 +104,11 @@ export function ChatBox() {
         clearTimeout(pollingRef.current);
       }
     };
-  }, [currentChatId]);
+  }, [currentChatIdState]);
 
   // 当URL中的chatId变化时更新currentChatId
   useEffect(() => {
-    setCurrentChatId(chatId);
+    setCurrentChatIdState(chatId);
   }, [chatId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,13 +128,13 @@ export function ChatBox() {
     try {
       const response = await sendMessage({
         message: input,
-        chatId: currentChatId || '',
+        chatId: currentChatIdState || '',
         chainId: 1 // 默认使用 chainId 1，如果需要可以从配置或其他地方获取
       });
 
       // 如果是新对话，从响应中获取chatId并开始轮询
-      if (!currentChatId && response.chatId) {
-        setCurrentChatId(response.chatId);
+      if (!currentChatIdState && response.chatId) {
+        setCurrentChatIdState(response.chatId);
       }
 
       // 不需要立即添加 AI 消息，因为轮询会自动获取最新消息
@@ -124,6 +152,35 @@ export function ChatBox() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
+  };
+
+  const handleConfirmAction = async (confirm: boolean) => {
+    try {
+      if (!confirmationData) return;
+
+      const txData = confirm ? JSON.parse(txJsonContent) : null;
+      await confirmChatAction({
+        actionId: confirmationData.actionId,
+        txData,
+        confirm
+      });
+
+      // Clear confirmation dialog
+      setConfirmationData(null);
+      setTxJsonContent('');
+
+      // Refresh chat history
+      if (currentChatIdState) {
+        await fetchChatHistory(currentChatIdState);
+      }
+    } catch (error) {
+      console.error('Failed to confirm action:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to confirm action. ${error}`,
+      });
+    }
   };
 
   return (
@@ -176,6 +233,31 @@ export function ChatBox() {
           </div>
         </form>
       </div>
+
+      {/* Action Confirmation Dialog */}
+      <Dialog open={!!confirmationData} onOpenChange={() => setConfirmationData(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Transaction</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              value={txJsonContent}
+              onChange={(e) => setTxJsonContent(e.target.value)}
+              className="min-h-[200px] font-mono"
+              placeholder="Transaction data in JSON format"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => handleConfirmAction(false)}>
+              Reject
+            </Button>
+            <Button onClick={() => handleConfirmAction(true)}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
