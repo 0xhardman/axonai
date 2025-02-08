@@ -92,7 +92,7 @@ export function ChatBox() {
         await fetchChatHistory(currentChatIdState);
       } finally {
         if (isPolling) {
-          pollingRef.current = setTimeout(poll, 2000);
+          pollingRef.current = setTimeout(poll, 3000);
         }
       }
     };

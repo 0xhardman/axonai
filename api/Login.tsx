@@ -21,5 +21,5 @@ interface LoginResp {
 
 export const login = authPost<LoginReq, LoginResp>(
   '/api',
-  `/auth/login`
+  `/user/login`
 );
