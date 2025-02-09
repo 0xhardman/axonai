@@ -73,11 +73,14 @@ export function ChatBox() {
       }
     } catch (error) {
       console.error('Failed to load chat history:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to load chat history. ${error}`,
-      });
+      // Only show toast if it's not a 503 error
+      if (!(error instanceof Error && 'status' in error && error.status === 503)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: `Failed to load chat history. ${error}`,
+        });
+      }
     }
   };
 
