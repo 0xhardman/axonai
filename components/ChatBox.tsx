@@ -20,6 +20,7 @@ interface Message {
   id: string | number;
   role: 'user' | 'ai';
   content: string;
+  agentId?: string;
 }
 
 interface ActionConfirmation {
@@ -29,35 +30,59 @@ interface ActionConfirmation {
 
 export function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [agentState, setAgentState] = useState<string>('');
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [confirmationData, setConfirmationData] = useState<ActionConfirmation | null>(null);
-  const [txJsonContent, setTxJsonContent] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const chatId = searchParams.get('chatId') || undefined;
+  const { address } = useAccount();
+  const [agentStates, setAgentStates] = useState<Map<string, string>>(new Map());
+  const [isPolling, setIsPolling] = useState(true);
+  const [confirmationData, setConfirmationData] = useState<ActionConfirmation | null>(null);
+  const [txJsonContent, setTxJsonContent] = useState('');
+  const [currentChatId, setCurrentChatId] = useState<string | undefined>(searchParams.get('chatId') || undefined);
+  const [isConfirming, setIsConfirming] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout>(null);
-  const currentChatId = searchParams.get('chatId') || undefined;
-  const [currentChatIdState, setCurrentChatIdState] = useState<string | undefined>(currentChatId);
   const { chain } = useAccount();
+
+  // Function to get agent-specific background color
+  const getAgentBackgroundColor = (agentId?: string) => {
+    if (!agentId) return 'bg-gray-700'; // Default color for user
+    // Use a hash function to generate consistent colors for different agents
+    const hash = agentId.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+    const hue = Math.abs(hash % 360); // Use hash to generate hue (0-360)
+    return `bg-[hsl(${hue},30%,25%)]`; // Return a tailwind-compatible HSL color
+  };
+
 
   const fetchChatHistory = async (id: string) => {
     try {
       const response = await getChatHistory({ chatId: id });
       console.log('Response:', response);
+      console.log('Agents:', response.agents);
 
-      // 设置 agent 状态
-      const agent = response.agents[0]; // 假设我们关注第一个 agent
-      if (agent) {
-        setAgentState(agent.stateDescription || 'No state description available');
+      // Update agent states
+      if (Array.isArray(response.agents)) {
+        const newAgentStates = new Map(response.agents
+          .filter(agent => agent && agent.agentId) // Make sure agent and agentId exist
+          .map(agent => {
+            console.log('Processing agent:', agent);
+            return [
+              agent.agentId,
+              agent.stateDescription || 'No state description available'
+            ];
+          }));
+        console.log('New agent states:', Array.from(newAgentStates.entries()));
+        setAgentStates(newAgentStates);
+      } else {
+        console.warn('No agents array in response:', response);
       }
 
       // 设置消息历史
       const historicalMessages: Message[] = response.messages.map(msg => ({
         id: msg.id,
         role: msg.agentId ? 'ai' : 'user' as const,
-        content: msg.content
+        content: msg.content,
+        agentId: msg.agentId || undefined
       }));
       console.log('Historical messages:', historicalMessages);
       setMessages(historicalMessages);
@@ -89,10 +114,10 @@ export function ChatBox() {
     let isPolling = true;
 
     const poll = async () => {
-      if (!isPolling || !currentChatIdState) return;
+      if (!isPolling || !currentChatId) return;
 
       try {
-        await fetchChatHistory(currentChatIdState);
+        await fetchChatHistory(currentChatId);
       } finally {
         if (isPolling) {
           pollingRef.current = setTimeout(poll, 3000);
@@ -100,7 +125,7 @@ export function ChatBox() {
       }
     };
 
-    if (currentChatIdState) {
+    if (currentChatId) {
       poll(); // 开始轮询
     }
 
@@ -110,16 +135,16 @@ export function ChatBox() {
         clearTimeout(pollingRef.current);
       }
     };
-  }, [currentChatIdState]);
+  }, [currentChatId]);
 
   // 当URL中的chatId变化时更新currentChatId
   useEffect(() => {
-    setCurrentChatIdState(chatId);
-  }, [chatId]);
+    setCurrentChatId(searchParams.get('chatId') || undefined);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || !isPolling) return;
 
     const userMessage: Message = {
       id: Date.now(),
@@ -129,18 +154,18 @@ export function ChatBox() {
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setIsLoading(true);
+    setIsPolling(false);
 
     try {
       const response = await sendMessage({
         message: input,
-        chatId: currentChatIdState || '',
+        chatId: currentChatId || '',
         chainId: chain?.id || 8453 // Use connected wallet's chain ID, fallback to Base
       });
 
       // 如果是新对话，从响应中获取chatId并开始轮询
-      if (!currentChatIdState && response.chatId) {
-        setCurrentChatIdState(response.chatId);
+      if (!currentChatId && response.chatId) {
+        setCurrentChatId(response.chatId);
       }
 
       // 不需要立即添加 AI 消息，因为轮询会自动获取最新消息
@@ -152,7 +177,7 @@ export function ChatBox() {
         description: "Failed to send message. Please try again.",
       });
     } finally {
-      setIsLoading(false);
+      setIsPolling(true);
     }
   };
 
@@ -161,9 +186,10 @@ export function ChatBox() {
   };
 
   const handleConfirmAction = async (confirm: boolean) => {
-    try {
-      if (!confirmationData) return;
+    if (!confirmationData) return;
+    setIsConfirming(true);
 
+    try {
       const txData = confirm ? JSON.parse(txJsonContent) : null;
       await confirmChatAction({
         actionId: confirmationData.actionId,
@@ -176,41 +202,68 @@ export function ChatBox() {
       setTxJsonContent('');
 
       // Refresh chat history
-      if (currentChatIdState) {
-        await fetchChatHistory(currentChatIdState);
+      if (currentChatId) {
+        await fetchChatHistory(currentChatId);
       }
     } catch (error) {
-      console.error('Failed to confirm action:', error);
+      console.log('Failed to confirm action:', error);
       toast({
         variant: "destructive",
         title: "Error",
         description: `Failed to confirm action. ${error}`,
       });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
   return (
     <div className="w-[500px] bg-[#1D1D1D] border-2 border-[#373737] rounded-lg shadow-2xl">
-      {/* Agent Status Bar */}
-      {agentState && (
-        <div className="px-6 py-3 bg-[#2D2D2D] border-b border-[#373737] rounded-t-lg">
-          <div className="font-minecraft text-sm text-gray-300">Agent Status:</div>
-          <div className="text-white font-minecraft">{agentState}</div>
-        </div>
-      )}
       {/* Chat Messages */}
       <div className="h-[450px] p-6 flex flex-col">
         <div className="flex-1 overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
+          {/* Display system message for agents without messages */}
+          {Array.from(agentStates.entries()).length > 0 && (messages.length === 0 || !messages.some(m => m.role === 'ai')) && (
+            <div className="rounded-lg p-4 mb-4 bg-gray-800/50">
+              <div className="font-minecraft text-sm text-gray-300 mb-2">
+                System
+              </div>
+              <div className="text-white font-minecraft space-y-2">
+                <div className="text-sm mb-2">Active Agents:</div>
+                {Array.from(agentStates.entries()).map(([agentId, state]) => {
+                  console.log('Rendering agent status:', agentId, state);
+                  return (
+                    <div
+                      key={agentId}
+                      className={`${getAgentBackgroundColor(agentId)} p-2 rounded flex justify-between items-center`}
+                    >
+                      <span>AI {agentId}</span>
+                      <span className="text-xs bg-black/30 px-2 py-1 rounded">
+                        {state}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Regular messages */}
           {messages.map(message => (
             <div
               key={message.id}
-              className={`p-4 rounded ${message.role === 'user'
-                ? 'bg-[#2D7D32] ml-8'
-                : 'bg-[#424242] mr-8'
+              className={`rounded-lg p-4 mb-4 ${message.role === 'user'
+                ? 'bg-gray-700'
+                : getAgentBackgroundColor(message.agentId)
                 }`}
             >
-              <div className="font-minecraft text-sm text-gray-300 mb-2">
-                {message.role === 'user' ? 'You' : 'AI'}
+              <div className="font-minecraft text-sm text-gray-300 mb-2 flex justify-between items-center">
+                <span>{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
+                {message.role === 'ai' && message.agentId && agentStates.get(message.agentId) && (
+                  <span className="text-xs bg-black/30 px-2 py-1 rounded">
+                    {agentStates.get(message.agentId)}
+                  </span>
+                )}
               </div>
               <div className="text-white font-minecraft whitespace-pre-wrap">
                 {message.content}
@@ -225,13 +278,13 @@ export function ChatBox() {
               name="prompt"
               value={input}
               onChange={handleInputChange}
-              disabled={isLoading}
+              disabled={!isPolling}
               className="flex-1 p-3 bg-[#424242] text-white font-minecraft border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
-              placeholder={isLoading ? "AI is thinking..." : "Type your message..."}
+              placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
             />
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={!isPolling}
               className="px-6 py-3 bg-[#4CAF50] text-white font-minecraft rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send
@@ -241,25 +294,33 @@ export function ChatBox() {
       </div>
 
       {/* Action Confirmation Dialog */}
-      <Dialog open={!!confirmationData} onOpenChange={() => setConfirmationData(null)}>
+      <Dialog open={!!confirmationData} onOpenChange={() => !isConfirming && setConfirmationData(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Transaction</DialogTitle>
+            <DialogTitle>Confirm Action</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
+          <div className="space-y-4">
             <Textarea
               value={txJsonContent}
               onChange={(e) => setTxJsonContent(e.target.value)}
-              className="min-h-[200px] font-mono"
-              placeholder="Transaction data in JSON format"
+              className="font-mono text-sm"
+              rows={10}
+              disabled={isConfirming}
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => handleConfirmAction(false)}>
-              Reject
+          <DialogFooter className="flex justify-end space-x-2">
+            <Button
+              variant="destructive"
+              onClick={() => handleConfirmAction(false)}
+              disabled={isConfirming}
+            >
+              {isConfirming ? 'Rejecting...' : 'Reject'}
             </Button>
-            <Button onClick={() => handleConfirmAction(true)}>
-              Confirm
+            <Button
+              onClick={() => handleConfirmAction(true)}
+              disabled={isConfirming}
+            >
+              {isConfirming ? 'Confirming...' : 'Confirm'}
             </Button>
           </DialogFooter>
         </DialogContent>
