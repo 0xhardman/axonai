@@ -31,33 +31,36 @@ import {
 } from 'wagmi/chains';
 
 // Define custom chains that aren't in wagmi/chains
-const blast: Chain = {
+const blast = {
   id: 81457,
   name: 'Blast',
-  network: 'blast',
   nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://rpc.blast.io'] },
     public: { http: ['https://rpc.blast.io'] },
   },
-};
+  blockExplorers: {
+    default: { name: 'Blastscan', url: 'https://blastscan.io' },
+  },
+} as const satisfies Chain;
 
-const blastSepolia: Chain = {
+const blastSepolia = {
   id: 168587773,
   name: 'Blast Sepolia',
-  network: 'blast-sepolia',
   nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://sepolia.blast.io'] },
     public: { http: ['https://sepolia.blast.io'] },
   },
+  blockExplorers: {
+    default: { name: 'Blastscan', url: 'https://testnet.blastscan.io' },
+  },
   testnet: true,
-};
+} as const satisfies Chain;
 
 const mantle: Chain = {
   id: 5000,
   name: 'Mantle',
-  network: 'mantle',
   nativeCurrency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://rpc.mantle.xyz'] },
@@ -68,7 +71,6 @@ const mantle: Chain = {
 const mantleSepolia: Chain = {
   id: 5003,
   name: 'Mantle Sepolia',
-  network: 'mantle-sepolia',
   nativeCurrency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://rpc.sepolia.mantle.xyz'] },
@@ -80,7 +82,6 @@ const mantleSepolia: Chain = {
 const holesky: Chain = {
   id: 17000,
   name: 'Holesky',
-  network: 'holesky',
   nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://ethereum-holesky.publicnode.com'] },
@@ -92,7 +93,6 @@ const holesky: Chain = {
 const zkSyncSepolia: Chain = {
   id: 300,
   name: 'zkSync Sepolia',
-  network: 'zksync-sepolia',
   nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://sepolia.era.zksync.dev'] },
