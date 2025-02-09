@@ -4,7 +4,7 @@ import { sendMessage } from '@/api/SendMessage';
 import { getChatHistory } from '@/api/GetChatHistory';
 import { confirmChatAction } from '@/api/ConfirmChatAction';
 import { useToast } from '@/hooks/use-toast';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import {
   Dialog,
@@ -34,6 +34,7 @@ export function ChatBox() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { address } = useAccount();
   const [agentStates, setAgentStates] = useState<Map<string, string>>(new Map());
   const [isPolling, setIsPolling] = useState(true);
@@ -46,11 +47,9 @@ export function ChatBox() {
 
   // Function to get agent-specific background color
   const getAgentBackgroundColor = (agentId?: string) => {
-    if (!agentId) return 'bg-gray-700'; // Default color for user
-    // Use a hash function to generate consistent colors for different agents
-    const hash = agentId.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-    const hue = Math.abs(hash % 360); // Use hash to generate hue (0-360)
-    return `bg-[hsl(${hue},30%,25%)]`; // Return a tailwind-compatible HSL color
+    if (!agentId) return 'bg-gray-700';
+    // Use a green color palette for AI messages
+    return 'bg-[#1a472a] hover:bg-[#1f5233] transition-colors';
   };
 
 
@@ -109,6 +108,26 @@ export function ChatBox() {
     }
   };
 
+  // Update URL when chatId changes
+  useEffect(() => {
+    if (currentChatId) {
+      // Create new URLSearchParams with current parameters
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.set('chatId', currentChatId);
+      // Update URL without reloading the page
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+    }
+  }, [currentChatId, router, searchParams]);
+
+  // Load chat history when chatId is available
+  useEffect(() => {
+    const chatId = searchParams.get('chatId');
+    if (chatId && chatId !== currentChatId) {
+      setCurrentChatId(chatId);
+      fetchChatHistory(chatId);
+    }
+  }, [searchParams]);
+
   // 初始加载和轮询
   useEffect(() => {
     let isPolling = true;
@@ -136,11 +155,6 @@ export function ChatBox() {
       }
     };
   }, [currentChatId]);
-
-  // 当URL中的chatId变化时更新currentChatId
-  useEffect(() => {
-    setCurrentChatId(searchParams.get('chatId') || undefined);
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,20 +266,20 @@ export function ChatBox() {
           {messages.map(message => (
             <div
               key={message.id}
-              className={`rounded-lg p-4 mb-4 ${message.role === 'user'
+              className={`rounded-lg p-5 mb-6 ${message.role === 'user'
                 ? 'bg-gray-700'
                 : getAgentBackgroundColor(message.agentId)
                 }`}
             >
-              <div className="font-minecraft text-sm text-gray-300 mb-2 flex justify-between items-center">
-                <span>{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
+              <div className="font-minecraft text-sm text-gray-300 mb-3 flex justify-between items-center">
+                <span className="text-gray-200">{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
                 {message.role === 'ai' && message.agentId && agentStates.get(message.agentId) && (
-                  <span className="text-xs bg-black/30 px-2 py-1 rounded">
+                  <span className="text-xs bg-[#0f2b19] text-emerald-300 px-3 py-1.5 rounded-full ml-3">
                     {agentStates.get(message.agentId)}
                   </span>
                 )}
               </div>
-              <div className="text-white font-minecraft whitespace-pre-wrap">
+              <div className="text-white font-minecraft whitespace-pre-wrap leading-relaxed">
                 {message.content}
               </div>
             </div>
