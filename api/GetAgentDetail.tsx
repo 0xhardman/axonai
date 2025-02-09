@@ -30,8 +30,7 @@ interface GetAgentDetailReq {
   id: string;
 }
 
-export const getAgentDetail = (id: string) =>
-  authGet<GetAgentDetailReq, AgentResp>(
-    '/api',
-    `/contract/agent/${id}`
-  )({ id });
+export const getAgentDetail = authGet<GetAgentDetailReq, AgentResp>(
+  '/api',
+  `/contract/agent/:id`
+)

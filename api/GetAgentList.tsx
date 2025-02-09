@@ -20,5 +20,5 @@ interface AgentListResp {
 
 export const getAgentList = authGet<void, AgentListResp>(
   '/api',
-  `/contract/agent/list`
+  `/contract/agents`
 );

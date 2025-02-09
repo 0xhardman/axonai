@@ -98,7 +98,7 @@ function EditContractAgentContent() {
     const fetchAgentData = async () => {
       try {
         setLoading(true);
-        const data = await getAgentDetail(agentId);
+        const data = await getAgentDetail({ id: agentId });
         setContractData(data);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch agent data';
