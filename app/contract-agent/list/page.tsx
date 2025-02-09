@@ -97,7 +97,7 @@ export default function ContractAgentListPage() {
       case 0:
         return <Badge variant="secondary">Inactive</Badge>;
       case 1:
-        return <Badge variant="success">Active</Badge>;
+        return <Badge variant="default">Active</Badge>;
       case 2:
         return <Badge variant="destructive">Error</Badge>;
       default:
