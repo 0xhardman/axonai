@@ -1,12 +1,14 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { getAgentList } from '@/api/GetAgentList';
-import { getAgentDetail } from '@/api/GetAgentDetail';
+import { AgentResp, getAgentDetail } from '@/api/GetAgentDetail';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -19,6 +21,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
+import { useAccount } from 'wagmi';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface AgentSkill {
   name: string;
@@ -33,24 +38,16 @@ interface AgentListItem {
   state: number;
 }
 
-interface AgentDetail {
-  id: string;
-  chainId: string;
-  address: string;
-  creatorAddress: string;
-  name: string;
-  description: string;
-  skills: AgentSkill[];
-  backstories: { title: string; content: string; }[];
-}
 
 export default function ContractAgentListPage() {
   const [agents, setAgents] = useState<AgentListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAgent, setSelectedAgent] = useState<AgentDetail | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentResp | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const { toast } = useToast();
+  const { address } = useAccount();
+  const router = useRouter();
 
   useEffect(() => {
     fetchAgents();
@@ -95,7 +92,7 @@ export default function ContractAgentListPage() {
   const getStateLabel = (state: number) => {
     switch (state) {
       case 0:
-        return <Badge variant="secondary">Inactive</Badge>;
+        return <Badge variant="default">Active</Badge>;
       case 1:
         return <Badge variant="default">Active</Badge>;
       case 2:
@@ -116,10 +113,10 @@ export default function ContractAgentListPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8 font-minecraft">Contract Agents</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {agents.map((agent) => (
-          <Card 
+          <Card
             key={agent.id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
             onClick={() => handleAgentClick(agent.id)}
@@ -145,7 +142,7 @@ export default function ContractAgentListPage() {
       </div>
 
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl h-[calc(100vh-2rem)] overflow-y-scroll">
           {loadingDetail ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -191,10 +188,38 @@ export default function ContractAgentListPage() {
                     </div>
                   </div>
                 )}
+                <div>
+                  <h3 className="font-semibold mb-2">Contract Creator</h3>
+                  <p>{selectedAgent.creatorAddress}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Last Action Time</h3>
+                  <p>{new Date(selectedAgent.lastActionTime).toLocaleString()}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Contract ID</h3>
+                  <p>{selectedAgent.contractId}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">User Count</h3>
+                  <p>{selectedAgent.userCount !== null ? selectedAgent.userCount : 'N/A'}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Created At</h3>
+                  <p>{new Date(selectedAgent.createdAt).toLocaleString()}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Updated At</h3>
+                  <p>{new Date(selectedAgent.updatedAt).toLocaleString()}</p>
+                </div>
               </div>
+              <DialogFooter>
+                {selectedAgent?.creatorAddress.toLowerCase() === address?.toLowerCase() && <Button onClick={() => router.push(`/contract-agent/edit?id=${selectedAgent?.id}`)}>Edit</Button>}
+              </DialogFooter>
             </>
           )}
         </DialogContent>
+
       </Dialog>
     </div>
   );

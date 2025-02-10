@@ -12,18 +12,23 @@ interface Backstory {
   content: string;
 }
 
-interface AgentResp {
+export interface AgentResp {
   id: string;
   chainId: string;
   address: string;
   creatorAddress: string;
   name: string;
   description: string;
-  contracts: string[];
-  abis: any[][];
   skills: Skill[];
   backstories: Backstory[];
+  lastActionTime: number;
+  contractId: string;
   state: number;
+  userCount: number | null;
+  createdAt: string;
+  updatedAt: string;
+  contracts: string[];
+  abis: any[]; // You may want to define a more specific type for the ABI structure
 }
 
 interface GetAgentDetailReq {
