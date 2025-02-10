@@ -416,7 +416,13 @@ export function ChatBox() {
                           </pre>
                         )}
                         {action.state === 3 && !editingTx && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
+                          <div 
+                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                            onClick={() => action.task && setEditingTx({
+                              id: action.id,
+                              tx: JSON.stringify(action.task.tx, null, 2)
+                            })}
+                          >
                             <span className="text-xs text-white bg-black/60 px-2 py-1 rounded">
                               Click to edit
                             </span>
