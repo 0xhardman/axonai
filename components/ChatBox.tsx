@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { sendMessage } from '@/api/SendMessage';
 import { getChatHistory } from '@/api/GetChatHistory';
 import { confirmChatAction } from '@/api/ConfirmChatAction';
+import { getAgentList } from '@/api/GetAgentList';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
@@ -37,6 +38,7 @@ export function ChatBox() {
   const router = useRouter();
   const { address } = useAccount();
   const [agentStates, setAgentStates] = useState<Map<string, string>>(new Map());
+  const [agentNames, setAgentNames] = useState<Map<string, string>>(new Map());
   const [isPolling, setIsPolling] = useState(true);
   const [confirmationData, setConfirmationData] = useState<ActionConfirmation | null>(null);
   const [txJsonContent, setTxJsonContent] = useState('');
@@ -52,6 +54,22 @@ export function ChatBox() {
     return 'bg-[#1a472a] hover:bg-[#1f5233] transition-colors';
   };
 
+  useEffect(() => {
+    const fetchAgentNames = async () => {
+      try {
+        const response = await getAgentList();
+        const namesMap = new Map();
+        response.agents.forEach(agent => {
+          namesMap.set(agent.id, agent.name);
+        });
+        setAgentNames(namesMap);
+      } catch (error) {
+        console.error('Failed to fetch agent names:', error);
+      }
+    };
+
+    fetchAgentNames();
+  }, []);
 
   const fetchChatHistory = async (id: string) => {
     try {
@@ -273,7 +291,14 @@ export function ChatBox() {
                 }`}
             >
               <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
-                <span className="text-gray-200">{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
+                <span className="text-gray-200">
+                  {message.role === 'user' 
+                    ? 'You' 
+                    : message.agentId 
+                      ? agentNames.get(message.agentId) || 'AI Agent'
+                      : 'AI'
+                  }
+                </span>
               </div>
               <div className="text-white  whitespace-pre-wrap leading-relaxed">
                 {message.content}
