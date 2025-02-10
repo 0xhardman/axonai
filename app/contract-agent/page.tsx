@@ -58,12 +58,12 @@ export default function ContractAgentPage() {
       <div className="flex-1 flex items-center justify-center py-8">
         <Card className="w-full max-w-md border-2 border-[#367d39] bg-white">
           <CardHeader>
-            <CardTitle className="text-2xl font-minecraft text-center">Create Contract Agent</CardTitle>
+            <CardTitle className="text-2xl  text-center">Create Contract Agent</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="contractAddress" className="block text-sm font-minecraft text-gray-700 mb-2">
+                <label htmlFor="contractAddress" className="block text-sm  text-gray-700 mb-2">
                   Contract Address
                 </label>
                 <input
@@ -71,14 +71,14 @@ export default function ContractAgentPage() {
                   id="contractAddress"
                   value={contractAddress}
                   onChange={(e) => setContractAddress(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-[#367d39] rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] font-minecraft text-sm"
+                  className="w-full px-3 py-2 border-2 border-[#367d39] rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50]  text-sm"
                   placeholder="Enter contract address"
                   required
                 />
               </div>
 
               {error && (
-                <div className="text-red-500 text-sm font-minecraft">
+                <div className="text-red-500 text-sm ">
                   {error}
                 </div>
               )}

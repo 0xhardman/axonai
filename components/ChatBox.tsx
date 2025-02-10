@@ -239,10 +239,10 @@ export function ChatBox() {
           {/* Display system message for agents without messages */}
           {Array.from(agentStates.entries()).length > 0 && (messages.length === 0 || !messages.some(m => m.role === 'ai')) && (
             <div className="rounded-lg p-4 mb-4 bg-gray-800/50">
-              <div className="font-minecraft text-sm text-gray-300 mb-2">
+              <div className="text-sm text-gray-300 mb-2">
                 System
               </div>
-              <div className="text-white font-minecraft space-y-2">
+              <div className="text-white  space-y-2">
                 <div className="text-sm mb-2">Active Agents:</div>
                 {Array.from(agentStates.entries()).map(([agentId, state]) => {
                   console.log('Rendering agent status:', agentId, state);
@@ -271,7 +271,7 @@ export function ChatBox() {
                 : getAgentBackgroundColor(message.agentId)
                 }`}
             >
-              <div className="font-minecraft text-sm text-gray-300 mb-3 flex justify-between items-center">
+              <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
                 <span className="text-gray-200">{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
                 {message.role === 'ai' && message.agentId && agentStates.get(message.agentId) && (
                   <span className="text-xs bg-[#0f2b19] text-emerald-300 px-3 py-1.5 rounded-full ml-3">
@@ -279,7 +279,7 @@ export function ChatBox() {
                   </span>
                 )}
               </div>
-              <div className="text-white font-minecraft whitespace-pre-wrap leading-relaxed">
+              <div className="text-white  whitespace-pre-wrap leading-relaxed">
                 {message.content}
               </div>
             </div>
@@ -293,13 +293,13 @@ export function ChatBox() {
               value={input}
               onChange={handleInputChange}
               disabled={!isPolling}
-              className="flex-1 p-3 bg-[#424242] text-white font-minecraft border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
+              className="flex-1 p-3 bg-[#424242] text-white  border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
               placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
             />
             <button
               type="submit"
               disabled={!isPolling}
-              className="px-6 py-3 bg-[#4CAF50] text-white font-minecraft rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-[#4CAF50] text-white  rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Send
             </button>

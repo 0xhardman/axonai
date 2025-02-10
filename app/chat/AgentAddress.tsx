@@ -58,10 +58,10 @@ export default function AgentAddress() {
         <div className="w-[500px] bg-[#1D1D1D] border-2 border-[#373737] rounded-lg p-4 mt-4">
             <div className="flex flex-col items-start justify-between">
                 <div className="flex flex-col space-y-1">
-                    <div className="font-minecraft text-sm text-gray-300">Agent Address</div>
-                    <div className="text-white font-minecraft truncate">{address || 'No address available'}</div>
+                    <div className="text-sm text-gray-300">Agent Address</div>
+                    <div className="text-white  truncate">{address || 'No address available'}</div>
                     {balance && (
-                        <div className="text-sm text-gray-300 font-minecraft">
+                        <div className="text-sm text-gray-300 ">
                             Balance: {balance} ETH
                         </div>
                     )}
@@ -70,7 +70,7 @@ export default function AgentAddress() {
                     <Button
                         onClick={() => address && fetchBalance(address)}
                         size="sm"
-                        className="bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft"
+                        className="bg-[#4CAF50] hover:bg-[#45a049] text-white "
                     >
                         Refresh
                     </Button>
@@ -78,7 +78,7 @@ export default function AgentAddress() {
                         onClick={copyAddress}
                         disabled={!address}
                         size="sm"
-                        className="bg-[#373737] hover:bg-[#424242] text-white font-minecraft disabled:opacity-50"
+                        className="bg-[#373737] hover:bg-[#424242] text-white  disabled:opacity-50"
                     >
                         Copy
                     </Button>

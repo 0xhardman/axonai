@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        minecraft: "bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5",
+        minecraft: "bg-[#4CAF50] hover:bg-[#45a049] text-white  shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -37,7 +37,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 

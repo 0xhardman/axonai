@@ -77,19 +77,19 @@ export function MinecraftNav() {
         <div className="flex items-center gap-8">
           <Link
             href="/contract-agent"
-            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             Create
           </Link>
           <Link
             href="/contract-agent/list"
-            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             List
           </Link>
           <Link
             href="/chat"
-            className="text-gray-300 hover:text-white font-minecraft px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             Chat
           </Link>
@@ -124,7 +124,7 @@ export function MinecraftNav() {
                     return (
                       <button
                         onClick={openConnectModal}
-                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft px-6 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
+                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white  px-6 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
                       >
                         Connect Wallet
                       </button>
@@ -135,7 +135,7 @@ export function MinecraftNav() {
                     return (
                       <button
                         onClick={openChainModal}
-                        className="h-10 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-minecraft px-6 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-red-700 hover:border-red-800 active:border-b-0 active:translate-y-0.5"
+                        className="h-10 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white  px-6 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-red-700 hover:border-red-800 active:border-b-0 active:translate-y-0.5"
                       >
                         Wrong Network
                       </button>
@@ -146,7 +146,7 @@ export function MinecraftNav() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={openChainModal}
-                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft px-4 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
+                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white  px-4 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
                       >
                         {chain.hasIcon && (
                           <div className="mr-2">
@@ -164,7 +164,7 @@ export function MinecraftNav() {
 
                       <button
                         onClick={openAccountModal}
-                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white font-minecraft px-4 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
+                        className="h-10 flex items-center justify-center bg-[#4CAF50] hover:bg-[#45a049] text-white  px-4 rounded shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5"
                       >
                         {account.displayName}
                         {account.displayBalance && (

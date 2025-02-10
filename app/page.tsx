@@ -9,13 +9,13 @@ export default function HomePage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="max-w-[1200px] w-full flex gap-12 items-center">
           <div className="flex-1 space-y-6">
-            <h1 className="text-4xl font-minecraft text-gray-900">
+            <h1 className="text-4xl  text-gray-900">
               Contract Agent
             </h1>
-            <p className="text-xl font-minecraft text-gray-600">
+            <p className="text-xl  text-gray-600">
               Your Smart Contract AI Assistant
             </p>
-            <div className="space-y-4 text-gray-600 font-minecraft">
+            <div className="space-y-4 text-gray-600 ">
               <p>🤖 Create AI agents for your smart contracts</p>
               <p>💬 Chat with your contracts in natural language</p>
               <p>🔍 Analyze contract behavior and security</p>

@@ -112,7 +112,7 @@ export default function ContractAgentListPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 font-minecraft">Contract Agents</h1>
+      <h1 className="text-3xl font-bold mb-8 ">Contract Agents</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {agents.map((agent) => (
@@ -123,7 +123,7 @@ export default function ContractAgentListPage() {
           >
             <CardHeader>
               <div className="flex justify-between items-start">
-                <CardTitle className="font-minecraft">{agent.name}</CardTitle>
+                <CardTitle className="">{agent.name}</CardTitle>
                 {getStateLabel(agent.state)}
               </div>
               <CardDescription>{agent.description}</CardDescription>
@@ -150,7 +150,7 @@ export default function ContractAgentListPage() {
           ) : selectedAgent && (
             <>
               <DialogHeader>
-                <DialogTitle className="font-minecraft">{selectedAgent.name}</DialogTitle>
+                <DialogTitle className="">{selectedAgent.name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>

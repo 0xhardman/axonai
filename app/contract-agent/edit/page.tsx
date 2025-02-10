@@ -250,7 +250,7 @@ function EditContractAgentContent() {
             <Scene />
             <Card className="mt-4 max-w-[40vw]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg font-minecraft">Contract Info</CardTitle>
+                <CardTitle className="text-lg ">Contract Info</CardTitle>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="minecraft" size="sm">
@@ -260,7 +260,7 @@ function EditContractAgentContent() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle className="font-minecraft">
+                      <DialogTitle >
                         {editingContextIndex !== null ? 'Edit Context' : 'Add Context'}
                       </DialogTitle>
                     </DialogHeader>
@@ -271,7 +271,7 @@ function EditContractAgentContent() {
                             key={type}
                             variant={selectedContextType === type ? "minecraft" : "outline"}
                             onClick={() => handleContextSelect(type)}
-                            className="w-full font-minecraft"
+                            className="w-full "
                             disabled={isContextTypeExists(type)}
                           >
                             {type}
@@ -282,18 +282,17 @@ function EditContractAgentContent() {
                         value={editingContent}
                         onChange={(e) => setEditingContent(e.target.value)}
                         placeholder="Enter context content..."
-                        className="min-h-[100px] font-minecraft"
+                        className="min-h-[100px] "
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={handleCloseDialog} className="font-minecraft">
+                      <Button variant="outline" onClick={handleCloseDialog} >
                         Cancel
                       </Button>
                       <Button
                         variant="minecraft"
                         onClick={handleSaveContext}
                         disabled={!selectedContextType || !editingContent.trim()}
-                        className="font-minecraft"
                       >
                         {editingContextIndex !== null ? 'Save' : 'Add'}
                       </Button>
@@ -302,7 +301,7 @@ function EditContractAgentContent() {
                 </Dialog>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="grid gap-2 font-minecraft">
+                <div className="grid gap-2 ">
                   <div className="flex items-center text-sm">
                     <span className="font-medium min-w-24">Address:</span>
                     <span>{contractData.address}</span>
@@ -323,7 +322,7 @@ function EditContractAgentContent() {
 
                 <div className="space-y-2 pt-4">
                   {contractData.backstories.map((story, index) => (
-                    <div key={index} className="text-sm flex items-center justify-between group font-minecraft">
+                    <div key={index} className="text-sm flex items-center justify-between group ">
                       <p>
                         <span className="font-medium">{story.title}:</span>{' '}
                         <span className="text-gray-600">{story.content || '(Empty)'}</span>
