@@ -8,6 +8,27 @@ import { useToast } from '@/hooks/use-toast';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import {
+  mainnet,
+  sepolia,
+  optimism,
+  optimismSepolia,
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  polygon,
+  avalanche,
+  avalancheFuji,
+  zkSync,
+  celo,
+  celoAlfajores,
+  linea,
+  lineaSepolia,
+  scroll,
+  scrollSepolia,
+  bsc,
+} from 'wagmi/chains';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -85,7 +106,42 @@ export function ChatBox() {
     });
   };
 
-  const getActionStateDisplay = (state: number) => {
+  const getExplorerUrl = (chainId: number, address: string) => {
+    const chain = {
+      [mainnet.id]: mainnet,
+      [sepolia.id]: sepolia,
+      [optimism.id]: optimism,
+      [optimismSepolia.id]: optimismSepolia,
+      [arbitrum.id]: arbitrum,
+      [arbitrumSepolia.id]: arbitrumSepolia,
+      [base.id]: base,
+      [baseSepolia.id]: baseSepolia,
+      [polygon.id]: polygon,
+      [avalanche.id]: avalanche,
+      [avalancheFuji.id]: avalancheFuji,
+      [zkSync.id]: zkSync,
+      [celo.id]: celo,
+      [celoAlfajores.id]: celoAlfajores,
+      [linea.id]: linea,
+      [lineaSepolia.id]: lineaSepolia,
+      [scroll.id]: scroll,
+      [scrollSepolia.id]: scrollSepolia,
+      [bsc.id]: bsc,
+      // Custom chains
+      81457: { blockExplorers: { default: { url: 'https://blastscan.io' } } },
+      168587773: { blockExplorers: { default: { url: 'https://testnet.blastscan.io' } } },
+      5000: { blockExplorers: { default: { url: 'https://explorer.mantle.xyz' } } },
+      5003: { blockExplorers: { default: { url: 'https://explorer.testnet.mantle.xyz' } } },
+      17000: { blockExplorers: { default: { url: 'https://holesky.etherscan.io' } } },
+      300: { blockExplorers: { default: { url: 'https://sepolia.explorer.zksync.io' } } },
+    }[chainId];
+
+    return chain?.blockExplorers?.default?.url 
+      ? `${chain.blockExplorers.default.url}/address/${address}`
+      : `https://etherscan.io/address/${address}`;
+  };
+
+  const getActionStateDisplay = (state: number, chainId: number, tx?: { address: string }) => {
     switch (state) {
       case 0:
         return {
@@ -130,7 +186,18 @@ export function ChatBox() {
       case 5:
         return {
           text: 'Processed',
-          description: 'Transaction completed',
+          description: tx?.address ? 
+            <span>
+              Transaction completed: <a 
+                href={getExplorerUrl(chainId, tx.address)} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline hover:text-green-300"
+              >
+                View Contract on Explorer
+              </a>
+            </span> : 
+            'Transaction completed',
           icon: '✅',
           bgColor: 'bg-green-600/20',
           textColor: 'text-green-400'
@@ -363,7 +430,11 @@ export function ChatBox() {
 
             if (isAction) {
               const action = item as Action;
-              const { text: stateText, description: stateDescription, icon, bgColor, textColor } = getActionStateDisplay(action.state);
+              const { text: stateText, description: stateDescription, icon, bgColor, textColor } = getActionStateDisplay(
+                action.state,
+                searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1,
+                action.task?.tx
+              );
 
               return (
                 <div
