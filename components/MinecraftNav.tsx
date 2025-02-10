@@ -70,26 +70,26 @@ export function MinecraftNav() {
             height={40}
             className="pixelated"
           />
-          <span className="text-white font-minecraft text-xl">AxonAI</span>
+          <span className="text-white font-minecraft text-xl leading-none">AxonAI</span>
         </div>
 
         {/* Navigation Links */}
         <div className="flex items-center gap-8">
           <Link
             href="/contract-agent"
-            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-2xl font-bold text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             Create
           </Link>
           <Link
             href="/contract-agent/list"
-            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-2xl font-bold text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             List
           </Link>
           <Link
             href="/chat"
-            className="text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
+            className="text-2xl font-bold text-gray-300 hover:text-white  px-4 py-2 hover:bg-[#373737] rounded transition-colors"
           >
             Chat
           </Link>

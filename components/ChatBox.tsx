@@ -292,9 +292,9 @@ export function ChatBox() {
             >
               <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
                 <span className="text-gray-200">
-                  {message.role === 'user' 
-                    ? 'You' 
-                    : message.agentId 
+                  {message.role === 'user'
+                    ? 'You'
+                    : message.agentId
                       ? agentNames.get(message.agentId) || 'AI Agent'
                       : 'AI'
                   }

@@ -142,6 +142,9 @@ export default function ContractAgentListPage() {
       </div>
 
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <DialogHeader>
+
+        </DialogHeader>
         <DialogContent className="max-w-2xl h-[calc(100vh-2rem)] overflow-y-scroll">
           {loadingDetail ? (
             <div className="flex justify-center items-center py-12">
