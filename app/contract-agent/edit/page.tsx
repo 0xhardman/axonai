@@ -90,6 +90,7 @@ function EditContractAgentContent() {
         variant: "destructive",
         title: "Error",
         description: "No agent ID provided",
+        duration: 3000,
       });
       router.push('/contract-agent');
       return;
@@ -106,6 +107,7 @@ function EditContractAgentContent() {
           variant: "destructive",
           title: "Error",
           description: errorMessage,
+          duration: 3000,
         });
       } finally {
         setLoading(false);
@@ -213,6 +215,7 @@ function EditContractAgentContent() {
       toast({
         title: "Success",
         description: "Agent updated successfully",
+        duration: 3000,
       });
 
       router.push('/chat');
@@ -222,6 +225,7 @@ function EditContractAgentContent() {
         variant: "destructive",
         title: "Error",
         description: errorMessage,
+        duration: 3000,
       });
     } finally {
       setLoading(false);
