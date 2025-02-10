@@ -26,6 +26,21 @@ interface Message {
   updatedAt: string;
 }
 
+interface TaskData {
+  tx?: {
+    address: string;
+    contractName: string;
+    methodSignature: string;
+    arguments: any[];
+    options?: {
+      gas?: string;
+      gasPrice?: string;
+    };
+  };
+  isReady: boolean;
+  response: string;
+}
+
 interface Action {
   id: string;
   chatId: string;
@@ -33,20 +48,7 @@ interface Action {
   skill: string;
   workflowIndex: number;
   state: number;
-  task: {
-    tx?: {
-      address: string;
-      contractName: string;
-      methodSignature: string;
-      arguments: any[];
-      options?: {
-        gas?: string;
-        gasPrice?: string;
-      };
-    };
-    isReady: boolean;
-    response: string;
-  };
+  task: TaskData | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -322,7 +324,7 @@ export function ChatBox() {
 
       await confirmChatAction({
         actionId,
-        txData: confirm ? (txData || action.task.tx) : null,
+        txData: confirm ? (txData || action.task?.tx) : null,
         confirm
       });
 
@@ -375,7 +377,7 @@ export function ChatBox() {
                     <span className="text-xs text-gray-400">{formatTime(action.createdAt)}</span>
                   </div>
                   <div className="text-white whitespace-pre-wrap leading-relaxed">
-                    {action.task.response}
+                    {action.task?.response}
                   </div>
                   <div className="mt-4 border-t border-gray-600 pt-4">
                     <div className="flex items-center justify-between mb-2">
@@ -390,7 +392,7 @@ export function ChatBox() {
                         {stateDescription}
                       </div>
                     )}
-                    {action.task.tx && (
+                    {action.task && action.task.tx && (
                       <div className={`relative rounded-lg overflow-hidden ${action.state === 3 ? 'ring-2 ring-orange-500/30' : ''
                         }`}>
                         {editingTx?.id === action.id ? (
@@ -405,7 +407,7 @@ export function ChatBox() {
                           <pre
                             className={`bg-black/30 p-3 text-xs text-gray-300 mb-3 overflow-x-auto ${action.state === 3 ? 'cursor-pointer hover:bg-black/40' : ''
                               }`}
-                            onClick={() => action.state === 3 && setEditingTx({
+                            onClick={() => action.state === 3 && action.task && setEditingTx({
                               id: action.id,
                               tx: JSON.stringify(action.task.tx, null, 2)
                             })}
