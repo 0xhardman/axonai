@@ -55,7 +55,7 @@ export function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [actions, setActions] = useState<Action[]>([]);
   const [input, setInput] = useState('');
-  const [editingTx, setEditingTx] = useState<{id: string, tx: string} | null>(null);
+  const [editingTx, setEditingTx] = useState<{ id: string, tx: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -77,8 +77,8 @@ export function ChatBox() {
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return new Date(timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit'
     });
   };
@@ -86,64 +86,64 @@ export function ChatBox() {
   const getActionStateDisplay = (state: number) => {
     switch (state) {
       case 0:
-        return { 
-          text: 'Pending', 
+        return {
+          text: 'Pending',
           description: 'Transaction parameters are being prepared',
           icon: '⏳',
           bgColor: 'bg-gray-600/20',
           textColor: 'text-gray-400'
         };
       case 1:
-        return { 
-          text: 'Generating', 
+        return {
+          text: 'Generating',
           description: 'Agent is generating parameters',
           icon: '🔄',
           bgColor: 'bg-blue-600/20',
           textColor: 'text-blue-400'
         };
       case 2:
-        return { 
-          text: 'Paused', 
+        return {
+          text: 'Paused',
           description: 'Waiting for more information, continue chatting',
           icon: '⏸️',
           bgColor: 'bg-yellow-600/20',
           textColor: 'text-yellow-400'
         };
       case 3:
-        return { 
-          text: 'Reviewing', 
+        return {
+          text: 'Reviewing',
           description: 'Please review and confirm',
           icon: '👀',
           bgColor: 'bg-orange-600/20',
           textColor: 'text-orange-400'
         };
       case 4:
-        return { 
-          text: 'Confirmed', 
+        return {
+          text: 'Confirmed',
           description: 'Transaction sent, waiting for blockchain confirmation',
           icon: '📤',
           bgColor: 'bg-indigo-600/20',
           textColor: 'text-indigo-400'
         };
       case 5:
-        return { 
-          text: 'Processed', 
+        return {
+          text: 'Processed',
           description: 'Transaction completed',
           icon: '✅',
           bgColor: 'bg-green-600/20',
           textColor: 'text-green-400'
         };
       case 6:
-        return { 
-          text: 'Rejected', 
+        return {
+          text: 'Rejected',
           description: 'Transaction rejected',
           icon: '❌',
           bgColor: 'bg-red-600/20',
           textColor: 'text-red-400'
         };
       default:
-        return { 
-          text: 'Unknown', 
+        return {
+          text: 'Unknown',
           description: '',
           icon: '❓',
           bgColor: 'bg-gray-600/20',
@@ -191,7 +191,7 @@ export function ChatBox() {
 
       // Set messages
       setMessages(response.messages || []);
-      
+
       // Set actions
       setActions(response.actions || []);
 
@@ -344,39 +344,21 @@ export function ChatBox() {
     }
   };
 
-  // Combine messages and actions into timeline items
-  const timelineItems = [...messages, ...actions].sort((a, b) => 
-    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
+  // Combine user messages and actions into timeline items
+  const timelineItems = [
+    ...messages.filter(msg => msg.agentId === null), // Only user messages
+    ...actions
+  ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
   return (
     <div className="w-[500px] bg-[#1D1D1D] border-2 border-[#373737] rounded-lg shadow-2xl">
       <div className="h-[550px] p-6 flex flex-col">
         <h2 className="text-white text-lg font-bold mb-4">Chat with Your Agent</h2>
         <div className="flex-1 overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
-          {/* System message for active agents */}
-          {Array.from(agentStates.entries()).length > 0 && timelineItems.length === 0 && (
-            <div className="rounded-lg p-4 mb-4 bg-gray-800/50">
-              <div className="text-sm text-gray-300 mb-2">System</div>
-              <div className="text-white space-y-2">
-                <div className="text-sm mb-2">Active Agents:</div>
-                {Array.from(agentStates.entries()).map(([agentId, state]) => (
-                  <div
-                    key={agentId}
-                    className={`${getAgentBackgroundColor(agentId)} p-2 rounded flex justify-between items-center`}
-                  >
-                    <span>{agentNames.get(agentId) || 'AI Agent'}</span>
-                    <span className="text-xs bg-black/30 px-2 py-1.5 rounded">{state}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Timeline items (messages and actions) */}
           {timelineItems.map(item => {
             const isAction = 'task' in item;
-            
+
             if (isAction) {
               const action = item as Action;
               const { text: stateText, description: stateDescription, icon, bgColor, textColor } = getActionStateDisplay(action.state);
@@ -409,9 +391,8 @@ export function ChatBox() {
                       </div>
                     )}
                     {action.task.tx && (
-                      <div className={`relative rounded-lg overflow-hidden ${
-                        action.state === 3 ? 'ring-2 ring-orange-500/30' : ''
-                      }`}>
+                      <div className={`relative rounded-lg overflow-hidden ${action.state === 3 ? 'ring-2 ring-orange-500/30' : ''
+                        }`}>
                         {editingTx?.id === action.id ? (
                           <Textarea
                             value={editingTx.tx}
@@ -421,12 +402,11 @@ export function ChatBox() {
                             disabled={action.state !== 3}
                           />
                         ) : (
-                          <pre 
-                            className={`bg-black/30 p-3 text-xs text-gray-300 mb-3 overflow-x-auto ${
-                              action.state === 3 ? 'cursor-pointer hover:bg-black/40' : ''
-                            }`}
-                            onClick={() => action.state === 3 && setEditingTx({ 
-                              id: action.id, 
+                          <pre
+                            className={`bg-black/30 p-3 text-xs text-gray-300 mb-3 overflow-x-auto ${action.state === 3 ? 'cursor-pointer hover:bg-black/40' : ''
+                              }`}
+                            onClick={() => action.state === 3 && setEditingTx({
+                              id: action.id,
                               tx: JSON.stringify(action.task.tx, null, 2)
                             })}
                           >
@@ -478,9 +458,8 @@ export function ChatBox() {
               return (
                 <div
                   key={message.id}
-                  className={`rounded-lg p-5 mb-6 ${
-                    message.agentId === null ? 'bg-gray-700' : getAgentBackgroundColor(message.agentId)
-                  }`}
+                  className={`rounded-lg p-5 mb-6 ${message.agentId === null ? 'bg-gray-700' : getAgentBackgroundColor(message.agentId)
+                    }`}
                 >
                   <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
                     <span className="text-gray-200">
