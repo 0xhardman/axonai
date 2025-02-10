@@ -234,7 +234,8 @@ export function ChatBox() {
   return (
     <div className="w-[500px] bg-[#1D1D1D] border-2 border-[#373737] rounded-lg shadow-2xl">
       {/* Chat Messages */}
-      <div className="h-[450px] p-6 flex flex-col">
+      <div className="h-[550px] p-6 flex flex-col">
+        <h2 className="text-white text-lg font-bold mb-4">Chat with Your Agent</h2>
         <div className="flex-1 overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
           {/* Display system message for agents without messages */}
           {Array.from(agentStates.entries()).length > 0 && (messages.length === 0 || !messages.some(m => m.role === 'ai')) && (
@@ -273,15 +274,15 @@ export function ChatBox() {
             >
               <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
                 <span className="text-gray-200">{message.role === 'user' ? 'You' : `AI ${message.agentId}`}</span>
-                {message.role === 'ai' && message.agentId && agentStates.get(message.agentId) && (
-                  <span className="text-xs bg-[#0f2b19] text-emerald-300 px-3 py-1.5 rounded-full ml-3">
-                    {agentStates.get(message.agentId)}
-                  </span>
-                )}
               </div>
               <div className="text-white  whitespace-pre-wrap leading-relaxed">
                 {message.content}
               </div>
+              {message.role === 'ai' && message.agentId && agentStates.get(message.agentId) && (
+                <div className="w-full text-xs bg-[#0f2b19] text-emerald-300 px-3 py-1.5 mt-2">
+                  {agentStates.get(message.agentId)}
+                </div>
+              )}
             </div>
           ))}
         </div>
