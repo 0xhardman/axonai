@@ -1,8 +1,8 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { getAgentList } from '@/api/GetAgentList';
+import type { AgentListItem } from '@/api/GetAgentList';
 import { AgentResp, getAgentDetail } from '@/api/GetAgentDetail';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -24,20 +24,13 @@ import { Loader2 } from "lucide-react";
 import { useAccount } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { ClockIcon, UsersIcon } from "lucide-react";
 
 interface AgentSkill {
   name: string;
   description: string;
+  workflow: string[];
 }
-
-interface AgentListItem {
-  id: string;
-  name: string;
-  description: string;
-  skills: AgentSkill[];
-  state: number;
-}
-
 
 export default function ContractAgentListPage() {
   const [agents, setAgents] = useState<AgentListItem[]>([]);
@@ -102,6 +95,16 @@ export default function ContractAgentListPage() {
     }
   };
 
+  const formatLastActionTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-66px)]">
@@ -129,12 +132,22 @@ export default function ContractAgentListPage() {
               <CardDescription>{agent.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mb-4">
                 {agent.skills.map((skill, index) => (
                   <Badge key={index} variant="outline">
                     {skill.name}
                   </Badge>
                 ))}
+              </div>
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <div className="flex items-center gap-1">
+                  <ClockIcon className="w-4 h-4" />
+                  <span>Last active: {formatLastActionTime(agent.lastActionTime)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <UsersIcon className="w-4 h-4" />
+                  <span>{agent.userCount} users</span>
+                </div>
               </div>
             </CardContent>
           </Card>

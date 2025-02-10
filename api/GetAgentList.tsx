@@ -1,20 +1,25 @@
-
 import { authGet } from "@/lib/auth";
 
-interface AgentSkill {
+export interface AgentSkill {
   name: string;
   description: string;
+  workflow: string[];
 }
 
-interface AgentListItem {
+export interface AgentListItem {
   id: string;
   name: string;
   description: string;
+  chainId: number;
+  address: string;
+  creatorAddress: string;
   skills: AgentSkill[];
   state: number;
+  lastActionTime: number;
+  userCount: number;
 }
 
-interface AgentListResp {
+export interface AgentListResp {
   agents: AgentListItem[];
 }
 
