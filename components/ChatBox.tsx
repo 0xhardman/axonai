@@ -94,7 +94,7 @@ export function ChatBox() {
         console.warn('No agents array in response:', response);
       }
 
-      // 设置消息历史
+      // 
       const historicalMessages: Message[] = response.messages.map(msg => ({
         id: msg.id,
         role: msg.agentId ? 'ai' : 'user' as const,
@@ -146,7 +146,7 @@ export function ChatBox() {
     }
   }, [searchParams]);
 
-  // 初始加载和轮询
+  // 
   useEffect(() => {
     let isPolling = true;
 
@@ -163,7 +163,7 @@ export function ChatBox() {
     };
 
     if (currentChatId) {
-      poll(); // 开始轮询
+      poll(); // 
     }
 
     return () => {
@@ -195,12 +195,12 @@ export function ChatBox() {
         chainId: chain?.id || 8453 // Use connected wallet's chain ID, fallback to Base
       });
 
-      // 如果是新对话，从响应中获取chatId并开始轮询
+      // ，chatId
       if (!currentChatId && response.chatId) {
         setCurrentChatId(response.chatId);
       }
 
-      // 不需要立即添加 AI 消息，因为轮询会自动获取最新消息
+      //  AI ，
     } catch (error) {
       console.error('Failed to send message:', error);
       toast({

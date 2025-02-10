@@ -8,7 +8,7 @@ interface ChatAgent {
 
 interface TransactionOptions {
   a: string
-  // 可以根据需要添加具体的选项字段
+  // 
 }
 
 interface TransactionTask {

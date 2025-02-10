@@ -31,14 +31,14 @@ export default function ContractAgentPage() {
         throw new Error('Invalid contract address format');
       }
 
-      // 创建 agent
+      //  agent
       const agent = await createAgent({
         chainId: chain?.id || 8453,
         address: contractAddress,
         backstories: []
       });
 
-      // 导航到编辑页面，只传入 agent id
+      // ， agent id
       router.push(`/contract-agent/edit?id=${agent.id}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create agent';

@@ -9,9 +9,9 @@ export function MinecraftVillager() {
   return (
     <group
       ref={groupRef}
-      position={[0, 3, 0]}     // [x, y, z] 位置
-      rotation={[0, Math.PI, 0]}  // [x, y, z] 旋转，使用弧度
-      scale={0.3}             // 整体缩放
+      position={[0, 3, 0]}     // [x, y, z] 
+      rotation={[0, Math.PI, 0]}  // [x, y, z] ，
+      scale={0.3}             // 
     >
       <primitive object={gltf.scene} />
     </group>

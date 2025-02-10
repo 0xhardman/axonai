@@ -162,7 +162,7 @@ export function setupToken(
 
   _tokens[type] = token;
 
-  // 有次数限制就不保存
+  // 
   save = save && (token.data.count == -1 || token.data.count == undefined);
   if (save) {
     setLocalStorage(`${TokenKey}-${type}`, token.value);
