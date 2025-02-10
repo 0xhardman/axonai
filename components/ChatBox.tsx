@@ -90,6 +90,7 @@ export function ChatBox() {
   const [isConfirming, setIsConfirming] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(searchParams.get('chatId') || undefined);
   const pollingRef = useRef<NodeJS.Timeout>(null);
+  const [loading, setLoading] = useState(false);
   const { chain } = useAccount();
 
   // Function to get agent-specific background color
@@ -136,7 +137,7 @@ export function ChatBox() {
       300: { blockExplorers: { default: { url: 'https://sepolia.explorer.zksync.io' } } },
     }[chainId];
 
-    return chain?.blockExplorers?.default?.url 
+    return chain?.blockExplorers?.default?.url
       ? `${chain.blockExplorers.default.url}/address/${address}`
       : `https://etherscan.io/address/${address}`;
   };
@@ -186,17 +187,17 @@ export function ChatBox() {
       case 5:
         return {
           text: 'Processed',
-          description: tx?.address ? 
+          description: tx?.address ?
             <span>
-              Transaction completed: <a 
-                href={getExplorerUrl(chainId, tx.address)} 
-                target="_blank" 
+              Transaction completed: <a
+                href={getExplorerUrl(chainId, tx.address)}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-green-300"
               >
                 View Contract on Explorer
               </a>
-            </span> : 
+            </span> :
             'Transaction completed',
           icon: '✅',
           bgColor: 'bg-green-600/20',
@@ -264,13 +265,17 @@ export function ChatBox() {
       // Set actions
       setActions(response.actions || []);
 
-    } catch (error) {
-      console.error('Failed to load chat history:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load chat history",
-      });
+    } catch (error: any) {
+      // Only show toast for client errors (status < 500)
+      console.error("Error fetching chat history:", error);
+      if (error?.response?.status < 500) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load chat history",
+          duration: 2000,
+        });
+      }
     }
   };
 
@@ -487,7 +492,7 @@ export function ChatBox() {
                           </pre>
                         )}
                         {action.state === 3 && !editingTx && (
-                          <div 
+                          <div
                             className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
                             onClick={() => action.task && setEditingTx({
                               id: action.id,
