@@ -264,7 +264,7 @@ export function ChatBox() {
   const fetchChatHistory = async (id: string) => {
     try {
       const response = await getChatHistory({
-        chatId: searchParams.get('chatId')!
+        chatId: id
       });
 
       if (!response) {
@@ -637,11 +637,10 @@ export function ChatBox() {
                         {agentNames.get(action.agentId) || 'AI Agent'}: {action.skill}
                       </span>
                       {action.task?.tx && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          action.task.isCall 
+                        <span className={`text-xs px-2 py-0.5 rounded ${action.task.isCall
                             ? 'bg-blue-900/50 text-blue-300 border border-blue-800'
                             : 'bg-purple-900/50 text-purple-300 border border-purple-800'
-                        }`}>
+                          }`}>
                           {action.task.isCall ? 'CALL' : 'SEND'}
                         </span>
                       )}
