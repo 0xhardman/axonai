@@ -600,12 +600,32 @@ export function ChatBox() {
               ))}
               <div ref={messagesEndRef} />
             </div>
+            {/* Input Area */}
+            <form onSubmit={handleSubmit}>
+              <div className="flex gap-2">
+                <input
+                  name="prompt"
+                  value={input}
+                  onChange={handleInputChange}
+                  disabled={!isPolling}
+                  className="flex-1 p-3 bg-[#424242] text-white border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
+                  placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
+                />
+                <button
+                  type="submit"
+                  disabled={!isPolling}
+                  className="px-6 py-3 bg-[#4CAF50] text-white rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Actions Column */}
           <div className="flex-1 min-w-0">
             <h3 className="text-white text-md font-semibold mb-3 px-1">Actions</h3>
-            <div className="h-[500px] overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
+            <div className="h-[560px] overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
               {actions.map(action => (
                 <div
                   key={action.id}
@@ -737,27 +757,6 @@ export function ChatBox() {
             </div>
           </div>
         </div>
-
-        {/* Input Area */}
-        <form onSubmit={handleSubmit} className="mt-3">
-          <div className="flex gap-2">
-            <input
-              name="prompt"
-              value={input}
-              onChange={handleInputChange}
-              disabled={!isPolling}
-              className="flex-1 p-3 bg-[#424242] text-white border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
-              placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
-            />
-            <button
-              type="submit"
-              disabled={!isPolling}
-              className="px-6 py-3 bg-[#4CAF50] text-white rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Send
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
