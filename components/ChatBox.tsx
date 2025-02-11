@@ -632,9 +632,20 @@ export function ChatBox() {
                   className="rounded-lg p-5 mb-6 bg-gray-800/50"
                 >
                   <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
-                    <span className="text-gray-200">
-                      {agentNames.get(action.agentId) || 'AI Agent'}: {action.skill}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-200">
+                        {agentNames.get(action.agentId) || 'AI Agent'}: {action.skill}
+                      </span>
+                      {action.task?.tx && (
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          action.task.isCall 
+                            ? 'bg-blue-900/50 text-blue-300 border border-blue-800'
+                            : 'bg-purple-900/50 text-purple-300 border border-purple-800'
+                        }`}>
+                          {action.task.isCall ? 'CALL' : 'SEND'}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-gray-400">{formatTime(action.createdAt)}</span>
                   </div>
                   <div className="text-white whitespace-pre-wrap leading-relaxed">
