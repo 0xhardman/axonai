@@ -269,7 +269,7 @@ export function ChatBox() {
   const fetchChatHistory = async (id: string) => {
     try {
       const response = await getChatHistory({
-        chatId: searchParams.get('chatId')!
+        chatId: id
       });
 
       if (!response) {
