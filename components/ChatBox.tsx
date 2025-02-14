@@ -82,6 +82,11 @@ interface TransactionReceipt {
   to: string;
 }
 
+interface CallResult {
+  value: string | number;
+  success: boolean;
+}
+
 interface TaskData {
   tx?: {
     address: string;
@@ -103,7 +108,7 @@ interface ChatAction {
   workflowIndex: number;
   state: number;
   task: TaskData | null;
-  result?: TransactionReceipt;
+  result?: TransactionReceipt | CallResult;
   createdAt: string;
   updatedAt: string;
 }
@@ -117,7 +122,7 @@ interface Action {
   workflowIndex: number;
   state: number;
   task: TaskData | null;
-  result?: TransactionReceipt;
+  result?: TransactionReceipt | CallResult;
   createdAt: string;
   updatedAt: string;
 }
@@ -264,7 +269,7 @@ export function ChatBox() {
   const fetchChatHistory = async (id: string) => {
     try {
       const response = await getChatHistory({
-        chatId: id
+        chatId: searchParams.get('chatId')!
       });
 
       if (!response) {
@@ -442,7 +447,7 @@ export function ChatBox() {
     }
   };
 
-  const getActionStateDisplay = (state: number, chainId: number, tx?: { address: string }) => {
+  const getActionStateDisplay = (state: number, chainId: number, task: TaskData | null) => {
     switch (state) {
       case 0:
         return {
@@ -486,11 +491,11 @@ export function ChatBox() {
         };
       case 5:
         return {
-          text: 'Processed',
-          description: tx?.address ?
+          text: task?.isCall ? 'Call completed' : 'Transaction completed',
+          description: task?.tx?.address ?
             <span>
-              Transaction completed: <a
-                href={getExplorerUrl(chainId, tx.address, 'address')}
+              {task.isCall ? 'Call completed: ' : 'Transaction completed: '}<a
+                href={getExplorerUrl(chainId, task.tx.address, 'address')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-green-300"
@@ -498,7 +503,7 @@ export function ChatBox() {
                 View Contract on Explorer
               </a>
             </span> :
-            'Transaction completed',
+            task?.isCall ? 'Call completed' : 'Transaction completed',
           icon: '✅',
           bgColor: 'bg-green-600/20',
           textColor: 'text-green-400'
@@ -638,8 +643,8 @@ export function ChatBox() {
                       </span>
                       {action.task?.tx && (
                         <span className={`text-xs px-2 py-0.5 rounded ${action.task.isCall
-                            ? 'bg-blue-900/50 text-blue-300 border border-blue-800'
-                            : 'bg-purple-900/50 text-purple-300 border border-purple-800'
+                          ? 'bg-blue-900/50 text-blue-300 border border-blue-800'
+                          : 'bg-purple-900/50 text-purple-300 border border-purple-800'
                           }`}>
                           {action.task.isCall ? 'CALL' : 'SEND'}
                         </span>
@@ -653,16 +658,16 @@ export function ChatBox() {
                   <div className="mt-4 border-t border-gray-600 pt-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="text-sm text-gray-300">Transaction Details</div>
-                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).bgColor}`}>
-                        <span className="text-base leading-none">{getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).icon}</span>
-                        <span className={`text-xs ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).textColor}`}>
-                          {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).text}
+                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).bgColor}`}>
+                        <span className="text-base leading-none">{getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).icon}</span>
+                        <span className={`text-xs ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
+                          {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).text}
                         </span>
                       </div>
                     </div>
-                    {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).description && (
-                      <div className={`text-xs mb-3 ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).textColor}`}>
-                        {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task?.tx).description}
+                    {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description && (
+                      <div className={`text-xs mb-3 ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
+                        {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description}
                       </div>
                     )}
                     {action.task && action.task.tx && (
@@ -703,33 +708,48 @@ export function ChatBox() {
                     )}
                     {action.result && (
                       <div className="mt-4 border-t border-gray-600 pt-4">
-                        <div className="text-sm text-gray-300 mb-2">Transaction Result</div>
+                        <div className="text-sm text-gray-300 mb-2">
+                          {action.task?.isCall ? 'Call Result' : 'Transaction Result'}
+                        </div>
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Status:</span>
-                            <span className={`text-xs ${action.result.status === 1 ? 'text-green-400' : 'text-red-400'}`}>
-                              {action.result.status === 1 ? 'Success' : 'Failed'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Hash:</span>
-                            <a
-                              href={getExplorerUrl(searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.result.hash, 'tx')}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-blue-400 hover:text-blue-300 truncate"
-                            >
-                              {action.result.hash}
-                            </a>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Block:</span>
-                            <span className="text-xs text-gray-300">{action.result.blockNumber}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-400">Gas Used:</span>
-                            <span className="text-xs text-gray-300">{action.result.gasUsed}</span>
-                          </div>
+                          {action.task?.isCall ? (
+                            // Call Result
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">Return Value:</span>
+                              <span className="text-xs text-gray-300 font-mono">
+                                {((action.result as CallResult) ?? 'No data').toString()}
+                              </span>
+                            </div>
+                          ) : (
+                            // Transaction Result
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Status:</span>
+                                <span className={`text-xs ${(action.result as TransactionReceipt).status === 1 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {(action.result as TransactionReceipt).status === 1 ? 'Success' : 'Failed'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Hash:</span>
+                                <a
+                                  href={getExplorerUrl(searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, (action.result as TransactionReceipt).hash, 'tx')}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-400 hover:text-blue-300 truncate"
+                                >
+                                  {(action.result as TransactionReceipt).hash}
+                                </a>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Block:</span>
+                                <span className="text-xs text-gray-300">{(action.result as TransactionReceipt).blockNumber}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Gas Used:</span>
+                                <span className="text-xs text-gray-300">{(action.result as TransactionReceipt).gasUsed}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     )}

@@ -70,7 +70,7 @@ export function MinecraftNav() {
             height={40}
             className="pixelated"
           />
-          <span className="text-white font-minecraft text-xl leading-none">AxonAI</span>
+          <span className="text-white font-minecraft text-xl leading-none mt-2 ml-1">AxonAI</span>
         </div>
 
         {/* Navigation Links */}
