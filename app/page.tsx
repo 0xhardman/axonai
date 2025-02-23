@@ -1,15 +1,20 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
+import { RetroGrid } from '@/components/ui/retro-grid';
 
 export default function HomePage() {
   return (
     <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center">
       <div className="container flex flex-col items-center justify-center gap-4 px-4 text-center md:gap-10">
         <div className="space-y-6">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent h-16">
-            Contract Agent
-          </h1>
+          <div className="relative flex h-[240px] w-full flex-col items-center justify-center overflow-hidden rounded-lg  bg-background ">
+            <span className="h-20 pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-b from-[#90EE90] via-[#32CD32] to-[#006400] bg-clip-text text-center text-7xl font-bold leading-none tracking-tighter text-transparent">
+              Contract Agent
+            </span>
+
+            <RetroGrid />
+          </div>
           <p className="mx-auto max-w-[600px] text-muted-foreground text-lg sm:text-xl">
             Your Smart Contract AI Assistant - Interact with blockchain contracts through natural language
           </p>
@@ -38,7 +43,7 @@ export default function HomePage() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/contract-agent">
-            <RainbowButton size="lg" className="w-full sm:w-auto min-w-[200px]">
+            <RainbowButton className="w-full sm:w-auto min-w-[200px]">
               Get Started
             </RainbowButton>
           </Link>
@@ -49,6 +54,6 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
-    </main>
+    </main >
   );
 }
