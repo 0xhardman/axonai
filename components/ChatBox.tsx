@@ -40,6 +40,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getToken } from "@/lib/auth";
 import JWT from "jsonwebtoken";
 import { createPublicClient, http, formatEther } from 'viem';
+import { Card, CardContent } from './ui/card';
 
 interface Message {
   id: string;
@@ -454,40 +455,40 @@ export function ChatBox() {
           text: 'Pending',
           description: 'Transaction parameters are being prepared',
           icon: '⏳',
-          bgColor: 'bg-gray-600/20',
-          textColor: 'text-gray-400'
+          bgColor: 'bg-muted',
+          textColor: 'text-muted-foreground'
         };
       case 1:
         return {
           text: 'Generating',
           description: 'Agent is generating parameters',
           icon: '🔄',
-          bgColor: 'bg-blue-600/20',
-          textColor: 'text-blue-400'
+          bgColor: 'bg-blue-500/10',
+          textColor: 'text-blue-500'
         };
       case 2:
         return {
           text: 'Paused',
           description: 'Waiting for more information, continue chatting',
           icon: '⏸️',
-          bgColor: 'bg-yellow-600/20',
-          textColor: 'text-yellow-400'
+          bgColor: 'bg-yellow-500/10',
+          textColor: 'text-yellow-500'
         };
       case 3:
         return {
           text: 'Reviewing',
           description: 'Please review and confirm',
           icon: '👀',
-          bgColor: 'bg-orange-600/20',
-          textColor: 'text-orange-400'
+          bgColor: 'bg-warning/10',
+          textColor: 'text-warning'
         };
       case 4:
         return {
           text: 'Confirmed',
           description: 'Transaction sent, waiting for blockchain confirmation',
           icon: '📤',
-          bgColor: 'bg-indigo-600/20',
-          textColor: 'text-indigo-400'
+          bgColor: 'bg-primary/10',
+          textColor: 'text-primary'
         };
       case 5:
         return {
@@ -498,291 +499,267 @@ export function ChatBox() {
                 href={getExplorerUrl(chainId, task.tx.address, 'address')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-green-300"
+                className="underline hover:text-primary/80"
               >
                 View Contract on Explorer
               </a>
             </span> :
             task?.isCall ? 'Call completed' : 'Transaction completed',
           icon: '✅',
-          bgColor: 'bg-green-600/20',
-          textColor: 'text-green-400'
+          bgColor: 'bg-success/10',
+          textColor: 'text-success'
         };
       case 6:
         return {
           text: 'Rejected',
           description: 'Transaction rejected',
           icon: '❌',
-          bgColor: 'bg-red-600/20',
-          textColor: 'text-red-400'
+          bgColor: 'bg-destructive/10',
+          textColor: 'text-destructive'
         };
       default:
         return {
           text: 'Unknown',
           description: '',
           icon: '❓',
-          bgColor: 'bg-gray-600/20',
-          textColor: 'text-gray-400'
+          bgColor: 'bg-muted',
+          textColor: 'text-muted-foreground'
         };
     }
   };
 
   return (
-    <div className="w-full max-w-6xl bg-[#1D1D1D] border-2 border-[#373737] rounded-lg shadow-2xl mt-10">
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-3">
-          <h2 className="text-white text-3xl font-bold">Chat with Your Agent</h2>
+    <div className="w-full max-w-6xl border rounded-lg bg-background">
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-start">
+          <h2 className="text-3xl font-bold">Chat with Your Agent</h2>
 
           {/* Agent Address Info */}
-          <div className="flex items-center gap-4 bg-[#252525] rounded-lg p-3">
-            <div className="flex flex-col space-y-1">
-              <div className="flex text-sm text-gray-300 gap-2">
-                <span>Agent Address</span>
-                {agentBalance && (
-                  <div className="text-sm text-gray-300">
-                    Balance: {agentBalance} ETH
-                  </div>
-                )}
-              </div>
-              <div className="text-white font-mono text-sm truncate max-w-[400px]">
-                {agentAddress || 'No address available'}
-              </div>
-
-            </div>
-            <div className="flex  gap-2">
-              <Button
-                onClick={() => agentAddress && fetchAgentBalance(agentAddress)}
-                size="sm"
-                variant="outline"
-                className="px-3 py-1 h-7"
-              >
-                Refresh
-              </Button>
-              <Button
-                onClick={copyAgentAddress}
-                disabled={!agentAddress}
-                size="sm"
-                variant="outline"
-                className="px-3 py-1 h-7"
-              >
-                Copy
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-6">
-          {/* Messages Column */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-white text-md font-semibold mb-3 px-1">Messages</h3>
-            <div className="h-[500px] overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
-              {messages.map(message => (
-                <div
-                  key={message.id}
-                  className={`rounded-lg p-5 mb-6 ${message.agentId === null
-                    ? 'bg-gray-700'
-                    : 'bg-gray-800/50 border border-gray-700'
-                    }`}
-                >
-                  <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
-                    <span className="text-gray-200">
-                      {message.agentId === null
-                        ? 'You'
-                        : agentNames.get(message.agentId) || 'AI Agent'
-                      }
-                    </span>
-                    <span className="text-xs text-gray-400">{formatTime(message.createdAt)}</span>
-                  </div>
-                  <div className="text-white whitespace-pre-wrap leading-relaxed">
-                    {message.content}
-                  </div>
-                  {message.agentId && message.state && (
-                    <div className="mt-2 text-xs bg-[#0f2b19] text-emerald-300 px-3 py-1.5 rounded">
-                      {message.state}
+          <Card className="w-fit">
+            <CardContent className="flex items-center gap-4 py-3">
+              <div className="flex flex-col space-y-1">
+                <div className="flex text-sm text-muted-foreground gap-2">
+                  <span>Agent Address</span>
+                  {agentBalance && (
+                    <div className="text-sm text-muted-foreground">
+                      Balance: {agentBalance} ETH
                     </div>
                   )}
                 </div>
+                <div className="font-mono text-sm truncate max-w-[400px]">
+                  {agentAddress || 'No address available'}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => agentAddress && fetchAgentBalance(agentAddress)}
+                  size="sm"
+                  variant="outline"
+                >
+                  Refresh
+                </Button>
+                <Button
+                  onClick={copyAgentAddress}
+                  disabled={!agentAddress}
+                  size="sm"
+                  variant="outline"
+                >
+                  Copy
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          {/* Messages Column */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Messages</h3>
+            <div className="h-[500px] overflow-auto space-y-4 pr-4">
+              {messages.map(message => (
+                <Card key={message.id} className={`border ${message.agentId === null ? 'bg-muted' : ''}`}>
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">
+                        {message.agentId === null
+                          ? 'You'
+                          : agentNames.get(message.agentId) || 'AI Agent'
+                        }
+                      </span>
+                      <span className="text-xs text-muted-foreground">{formatTime(message.createdAt)}</span>
+                    </div>
+                    <div className="whitespace-pre-wrap leading-relaxed">
+                      {message.content}
+                    </div>
+                    {message.agentId && message.state && (
+                      <div className="mt-2 text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-md">
+                        {message.state}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               ))}
               <div ref={messagesEndRef} />
             </div>
+
             {/* Input Area */}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="mt-4">
               <div className="flex gap-2">
                 <input
                   name="prompt"
                   value={input}
                   onChange={handleInputChange}
                   disabled={!isPolling}
-                  className="flex-1 p-3 bg-[#424242] text-white border-2 border-[#373737] rounded focus:outline-none focus:border-[#4CAF50] placeholder-gray-500 disabled:opacity-50"
+                  className="flex-1 h-10 px-3 rounded-md bg-background border text-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
                   placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
                 />
-                <button
-                  type="submit"
-                  disabled={!isPolling}
-                  className="px-6 py-3 bg-[#4CAF50] text-white rounded shadow-lg hover:bg-[#45a049] transition-colors border-b-4 border-[#367d39] hover:border-[#2d682f] active:border-b-0 active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                <Button type="submit" disabled={!isPolling}>
                   Send
-                </button>
+                </Button>
               </div>
             </form>
           </div>
 
           {/* Actions Column */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-white text-md font-semibold mb-3 px-1">Actions</h3>
-            <div className="h-[560px] overflow-auto space-y-4 mb-4 scrollbar-thin scrollbar-thumb-[#373737] scrollbar-track-[#1D1D1D]">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Actions</h3>
+            <div className="h-[560px] overflow-auto space-y-4 pr-4">
               {actions.map(action => (
-                <div
-                  key={action.id}
-                  className="rounded-lg p-5 mb-6 bg-gray-800/50"
-                >
-                  <div className="text-sm text-gray-300 mb-3 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-200">
-                        {agentNames.get(action.agentId) || 'AI Agent'}: {action.skill}
-                      </span>
-                      {action.task?.tx && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${action.task.isCall
-                          ? 'bg-blue-900/50 text-blue-300 border border-blue-800'
-                          : 'bg-purple-900/50 text-purple-300 border border-purple-800'
-                          }`}>
-                          {action.task.isCall ? 'CALL' : 'SEND'}
+                <Card key={action.id} className="border">
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          {agentNames.get(action.agentId) || 'AI Agent'}: {action.skill}
                         </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-400">{formatTime(action.createdAt)}</span>
-                  </div>
-                  <div className="text-white whitespace-pre-wrap leading-relaxed">
-                    {action.task?.response}
-                  </div>
-                  <div className="mt-4 border-t border-gray-600 pt-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-sm text-gray-300">Transaction Details</div>
-                      <div className={`flex items-center gap-1.5 px-2 py-1 rounded ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).bgColor}`}>
-                        <span className="text-base leading-none">{getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).icon}</span>
-                        <span className={`text-xs ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
-                          {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).text}
-                        </span>
-                      </div>
-                    </div>
-                    {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description && (
-                      <div className={`text-xs mb-3 ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
-                        {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description}
-                      </div>
-                    )}
-                    {action.task && action.task.tx && (
-                      <div className={`relative rounded-lg overflow-hidden ${action.state === 3 ? 'ring-2 ring-orange-500/30' : ''}`}>
-                        {editingTx?.id === action.id ? (
-                          <Textarea
-                            value={editingTx.tx}
-                            onChange={(e) => setEditingTx({ id: action.id, tx: e.target.value })}
-                            className="font-mono text-xs bg-black/30 text-gray-300 mb-3 resize-none"
-                            rows={8}
-                            disabled={action.state !== 3}
-                          />
-                        ) : (
-                          <pre
-                            className={`bg-black/30 p-3 text-xs text-gray-300 mb-3 overflow-x-auto ${action.state === 3 ? 'cursor-pointer hover:bg-black/40' : ''}`}
-                            onClick={() => action.state === 3 && action.task && setEditingTx({
-                              id: action.id,
-                              tx: JSON.stringify(action.task.tx, null, 2)
-                            })}
-                          >
-                            {JSON.stringify(action.task.tx, null, 2)}
-                          </pre>
-                        )}
-                        {action.state === 3 && !editingTx && (
-                          <div
-                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
-                            onClick={() => action.task && setEditingTx({
-                              id: action.id,
-                              tx: JSON.stringify(action.task.tx, null, 2)
-                            })}
-                          >
-                            <span className="text-xs text-white bg-black/60 px-2 py-1 rounded">
-                              Click to edit
-                            </span>
-                          </div>
+                        {action.task?.tx && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${action.task.isCall
+                              ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                              : 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+                            }`}>
+                            {action.task.isCall ? 'CALL' : 'SEND'}
+                          </span>
                         )}
                       </div>
-                    )}
-                    {action.result && (
-                      <div className="mt-4 border-t border-gray-600 pt-4">
-                        <div className="text-sm text-gray-300 mb-2">
-                          {action.task?.isCall ? 'Call Result' : 'Transaction Result'}
+                      <span className="text-xs text-muted-foreground">{formatTime(action.createdAt)}</span>
+                    </div>
+
+                    <div className="whitespace-pre-wrap leading-relaxed">
+                      {action.task?.response}
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-medium">Transaction Details</div>
+                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).bgColor}`}>
+                          <span className="text-base leading-none">
+                            {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).icon}
+                          </span>
+                          <span className={`text-xs ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
+                            {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).text}
+                          </span>
                         </div>
-                        <div className="space-y-2">
-                          {action.task?.isCall ? (
-                            // Call Result
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-400">Return Value:</span>
-                              <span className="text-xs text-gray-300 font-mono">
-                                {((action.result as CallResult) ?? 'No data').toString()}
-                              </span>
-                            </div>
+                      </div>
+
+                      {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description && (
+                        <div className={`text-xs mb-3 ${getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).textColor}`}>
+                          {getActionStateDisplay(action.state, searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, action.task).description}
+                        </div>
+                      )}
+
+                      {action.task && action.task.tx && (
+                        <div className={`relative rounded-lg overflow-hidden ${action.state === 3 ? 'ring-2 ring-warning' : ''}`}>
+                          {editingTx?.id === action.id ? (
+                            <Textarea
+                              value={editingTx.tx}
+                              onChange={(e) => setEditingTx({ id: action.id, tx: e.target.value })}
+                              className="font-mono text-xs min-h-[100px]"
+                            />
                           ) : (
-                            // Transaction Result
-                            <>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">Status:</span>
-                                <span className={`text-xs ${(action.result as TransactionReceipt).status === 1 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {(action.result as TransactionReceipt).status === 1 ? 'Success' : 'Failed'}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">Hash:</span>
-                                <a
-                                  href={getExplorerUrl(searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, (action.result as TransactionReceipt).hash, 'tx')}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs text-blue-400 hover:text-blue-300 truncate"
-                                >
-                                  {(action.result as TransactionReceipt).hash}
-                                </a>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">Block:</span>
-                                <span className="text-xs text-gray-300">{(action.result as TransactionReceipt).blockNumber}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">Gas Used:</span>
-                                <span className="text-xs text-gray-300">{(action.result as TransactionReceipt).gasUsed}</span>
-                              </div>
-                            </>
+                            <pre className="p-3 text-xs font-mono bg-muted rounded-lg overflow-x-auto">
+                              {JSON.stringify(action.task.tx, null, 2)}
+                            </pre>
                           )}
                         </div>
-                      </div>
-                    )}
-                    {action.state === 3 && (
-                      <div className="flex justify-end gap-2 mt-4">
-                        {editingTx?.id === action.id && (
+                      )}
+
+                      {action.result && (
+                        <div className="mt-4 pt-4 border-t">
+                          <div className="text-sm font-medium mb-2">
+                            {action.task?.isCall ? 'Call Result' : 'Transaction Result'}
+                          </div>
+                          <div className="space-y-2">
+                            {action.task?.isCall ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">Return Value:</span>
+                                <span className="text-xs font-mono">
+                                  {((action.result as CallResult) ?? 'No data').toString()}
+                                </span>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Status:</span>
+                                  <span className={`text-xs ${(action.result as TransactionReceipt).status === 1 ? 'text-success' : 'text-destructive'}`}>
+                                    {(action.result as TransactionReceipt).status === 1 ? 'Success' : 'Failed'}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Hash:</span>
+                                  <a
+                                    href={getExplorerUrl(searchParams.get('chainId') ? parseInt(searchParams.get('chainId')!) : 1, (action.result as TransactionReceipt).hash, 'tx')}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-primary hover:text-primary/80 truncate"
+                                  >
+                                    {(action.result as TransactionReceipt).hash}
+                                  </a>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Block:</span>
+                                  <span className="text-xs">{(action.result as TransactionReceipt).blockNumber}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Gas Used:</span>
+                                  <span className="text-xs">{(action.result as TransactionReceipt).gasUsed}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {action.state === 3 && (
+                        <div className="flex justify-end gap-2 mt-4">
+                          {editingTx?.id === action.id && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingTx(null)}
+                            >
+                              Cancel Edit
+                            </Button>
+                          )}
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             size="sm"
-                            onClick={() => setEditingTx(null)}
+                            onClick={() => handleConfirmAction(action.id, false)}
+                            disabled={isConfirming}
                           >
-                            Cancel Edit
+                            Reject
                           </Button>
-                        )}
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleConfirmAction(action.id, false)}
-                          disabled={isConfirming}
-                        >
-                          Reject
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleConfirmAction(action.id, true)}
-                          disabled={isConfirming}
-                        >
-                          Confirm
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                          <Button
+                            size="sm"
+                            onClick={() => handleConfirmAction(action.id, true)}
+                            disabled={isConfirming}
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
