@@ -10,6 +10,7 @@ import { createAgent } from '@/api/ContractAgent';
 import { useToast } from "@/hooks/use-toast";
 import { useAccount } from 'wagmi';
 import { cn } from "@/lib/utils";
+import { RainbowButton } from '@/components/ui/rainbow-button';
 
 interface ContractInfo {
   name: string;
@@ -89,13 +90,13 @@ export default function ContractAgentPage() {
             </form>
           </CardContent>
           <CardFooter>
-            <Button
+            <RainbowButton
               onClick={handleSubmit}
               disabled={loading}
               className="w-full"
             >
               {loading ? 'Creating...' : 'Create Agent'}
-            </Button>
+            </RainbowButton>
           </CardFooter>
         </Card>
       </div>

@@ -41,6 +41,7 @@ import { getToken } from "@/lib/auth";
 import JWT from "jsonwebtoken";
 import { createPublicClient, http, formatEther } from 'viem';
 import { Card, CardContent } from './ui/card';
+import { RainbowButton } from './ui/rainbow-button';
 
 interface Message {
   id: string;
@@ -613,9 +614,9 @@ export function ChatBox() {
                   className="flex-1 h-10 px-3 rounded-md bg-background border text-foreground focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
                   placeholder={!isPolling ? "AI is thinking..." : "Type your message..."}
                 />
-                <Button type="submit" disabled={!isPolling}>
+                <RainbowButton type="submit" disabled={!isPolling}>
                   Send
-                </Button>
+                </RainbowButton>
               </div>
             </form>
           </div>

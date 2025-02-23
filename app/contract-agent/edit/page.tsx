@@ -18,6 +18,7 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { getAgentDetail } from '@/api/GetAgentDetail';
 import { editAgent } from '@/api/EditAgent';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 
 type ContextType = 'Role' | 'Goal' | 'Backstory';
 
@@ -352,14 +353,13 @@ function EditContractAgentContent() {
             </div>
 
             <div className="pt-6 border-t mt-6">
-              <Button
-                size="lg"
+              <RainbowButton
                 onClick={handleSave}
                 disabled={loading}
                 className="w-full"
               >
                 {loading ? 'Saving...' : 'Save Changes'}
-              </Button>
+              </RainbowButton>
             </div>
           </CardContent>
         </Card>

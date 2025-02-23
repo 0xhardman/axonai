@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 
 export default function HomePage() {
   return (
@@ -37,9 +38,9 @@ export default function HomePage() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/contract-agent">
-            <Button size="lg" className="w-full sm:w-auto min-w-[200px]">
+            <RainbowButton size="lg" className="w-full sm:w-auto min-w-[200px]">
               Get Started
-            </Button>
+            </RainbowButton>
           </Link>
           <Link href="/contract-agent/list">
             <Button variant="outline" size="lg" className="w-full sm:w-auto min-w-[200px]">
