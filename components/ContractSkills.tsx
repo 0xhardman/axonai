@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -78,23 +80,23 @@ export function ContractSkills({
   };
 
   return (
-    <Card className="w-full border-2 border-[#367d39] bg-white">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <CardTitle className="text-lg ">Contract Skills</CardTitle>
+          <CardTitle className="text-lg">Contract Skills</CardTitle>
           <TooltipProvider>
             <Tooltip delayDuration={200}>
               <TooltipTrigger>
-                <CircleHelp className="text-gray-500 w-4 h-4" />
+                <CircleHelp className="text-muted-foreground w-4 h-4" />
               </TooltipTrigger>
-              <TooltipContent className="border-2 border-[#367d39] bg-white">
-                <p >Define the skills and capabilities of your contract agent</p>
+              <TooltipContent>
+                <p>Define the skills and capabilities of your contract agent</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
         <Button
-          variant="minecraft"
+          variant="secondary"
           size="sm"
           onClick={handleAddSkill}
         >
@@ -103,44 +105,39 @@ export function ContractSkills({
         </Button>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-4">
         {isEditing ? (
-          <Card className="border-2 border-[#367d39]">
+          <Card>
             <CardContent className="space-y-4 pt-6">
-              <div>
-                <label className="block text-sm  text-gray-700 mb-2">
-                  Skill Name
-                </label>
-                <input
-                  type="text"
+              <div className="space-y-2">
+                <Label htmlFor="skillName">Skill Name</Label>
+                <Input
+                  id="skillName"
                   value={currentSkill.name}
                   onChange={(e) => setCurrentSkill(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border-2 border-[#367d39] rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50]  text-sm"
                   placeholder="Enter skill name"
                 />
               </div>
-              <div>
-                <label className="block text-sm  text-gray-700 mb-2">
-                  Description
-                </label>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
                 <Textarea
+                  id="description"
                   value={currentSkill.description}
                   onChange={(e) => setCurrentSkill(prev => ({ ...prev, description: e.target.value }))}
-                  className="border-2 border-[#367d39] focus:ring-2 focus:ring-[#4CAF50] min-h-[100px]"
+                  className="min-h-[100px]"
                   placeholder="Describe what this skill does and how to use it"
                 />
               </div>
-              <div>
-                <label className="block text-sm  text-gray-700 mb-2">
-                  Workflow
-                </label>
+              <div className="space-y-2">
+                <Label htmlFor="workflow">Workflow</Label>
                 <Textarea
+                  id="workflow"
                   value={currentSkill.workflow.join('\n')}
                   onChange={(e) => setCurrentSkill(prev => ({
                     ...prev,
                     workflow: e.target.value.split('\n').filter(line => line.trim() !== '')
                   }))}
-                  className=" border-2 border-[#367d39] focus:ring-2 focus:ring-[#4CAF50] min-h-[100px]"
+                  className="min-h-[100px]"
                   placeholder="Enter workflow steps (one per line)"
                 />
               </div>
@@ -148,14 +145,11 @@ export function ContractSkills({
                 <Button
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant="minecraft"
                   onClick={handleSaveSkill}
-
                   disabled={!currentSkill.name || !currentSkill.description}
                 >
                   Save
@@ -165,46 +159,52 @@ export function ContractSkills({
           </Card>
         ) : (
           <div className="space-y-4">
-            {skills.map((skill) => (
-              <Card key={skill.name} className="border-2 border-[#367d39]">
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg ">{skill.name}</h3>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditSkill(skill)}
-                        className="h-8 w-8 p-0 hover:bg-[#4CAF50]/10"
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteSkill(skill.name)}
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+            {skills.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground">No skills added yet. Click "Add Skill" to create one.</p>
+              </div>
+            ) : (
+              skills.map((skill) => (
+                <Card key={skill.name}>
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-medium">{skill.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{skill.description}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditSkill(skill)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteSkill(skill.name)}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-gray-600  text-sm">{skill.description}</p>
                     {skill.workflow.length > 0 && (
                       <div className="mt-4">
-                        <h4 className="text-sm  text-gray-700 mb-2">Workflow:</h4>
+                        <h4 className="text-sm font-medium mb-2">Workflow</h4>
                         <ul className="list-decimal list-inside space-y-1">
                           {skill.workflow.map((step, index) => (
-                            <li key={index} className="text-sm text-gray-600 ">{step}</li>
+                            <li key={index} className="text-sm text-muted-foreground">{step}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         )}
       </CardContent>

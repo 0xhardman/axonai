@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import { Scene } from "@/components/Scene";
 import { ContractSkills } from "@/components/ContractSkills";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,10 +50,10 @@ interface ContractData {
 
 export default function EditContractAgentPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="container mx-auto py-8">
-        <Suspense fallback={
-          <Card className="w-full max-w-2xl mx-auto">
+    <main className="container py-8">
+      <Suspense fallback={
+        <div className='flex flex-col w-screen px-8'>
+          <Card className="mx-auto w-full max-w-2xl">
             <CardContent className="pt-6">
               <div className="animate-pulse space-y-4">
                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
@@ -63,11 +62,11 @@ export default function EditContractAgentPage() {
               </div>
             </CardContent>
           </Card>
-        }>
-          <EditContractAgentContent />
-        </Suspense>
-      </div>
-    </div>
+        </div>
+      }>
+        <EditContractAgentContent />
+      </Suspense>
+    </main>
   );
 }
 
@@ -234,150 +233,147 @@ function EditContractAgentContent() {
 
   if (!contractData) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="pt-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className='flex flex-col w-screen px-8'>
+        <Card className="mx-auto w-full max-w-2xl">
+          <CardContent className="pt-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full mx-auto">
-      <CardContent className="pt-6">
-        <div className="flex-1 flex items-start justify-center gap-8 p-8">
-          <div className="sticky top-8">
-            <Scene />
-            <Card className="mt-4 max-w-[40vw]">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg ">Contract Info</CardTitle>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="minecraft" size="sm">
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Context
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle >
-                        {editingContextIndex !== null ? 'Edit Context' : 'Add Context'}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="grid grid-cols-3 gap-2">
-                        {(['Role', 'Goal', 'Backstory'] as const).map((type) => (
-                          <Button
-                            key={type}
-                            variant={selectedContextType === type ? "minecraft" : "outline"}
-                            onClick={() => handleContextSelect(type)}
-                            className="w-full "
-                            disabled={isContextTypeExists(type)}
-                          >
-                            {type}
-                          </Button>
-                        ))}
-                      </div>
-                      <Textarea
-                        value={editingContent}
-                        onChange={(e) => setEditingContent(e.target.value)}
-                        placeholder="Enter context content..."
-                        className="min-h-[100px] "
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={handleCloseDialog} >
-                        Cancel
-                      </Button>
+    <div className='flex flex-col w-screen px-8'>
+
+      <div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-lg">Contract Info</CardTitle>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="secondary" size="sm">
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Context
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingContextIndex !== null ? 'Edit Context' : 'Add Context'}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['Role', 'Goal', 'Backstory'] as const).map((type) => (
                       <Button
-                        variant="minecraft"
-                        onClick={handleSaveContext}
-                        disabled={!selectedContextType || !editingContent.trim()}
+                        key={type}
+                        variant={selectedContextType === type ? "default" : "outline"}
+                        onClick={() => handleContextSelect(type)}
+                        className="w-full"
+                        disabled={isContextTypeExists(type)}
                       >
-                        {editingContextIndex !== null ? 'Save' : 'Add'}
+                        {type}
                       </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="grid gap-2 ">
-                  <div className="flex items-center text-sm">
-                    <span className="font-medium min-w-24">Address:</span>
-                    <span>{contractData.address}</span>
+                    ))}
                   </div>
-                  <div className="flex items-center text-sm">
-                    <span className="font-medium min-w-24">Name:</span>
-                    <span>{contractData.name}</span>
-                  </div>
-                  <div className="flex items-start text-sm">
-                    <span className="font-medium min-w-24">Description:</span>
-                    <span>{contractData.description}</span>
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <span className="font-medium min-w-24">Skills:</span>
-                    <span>{contractData.skills.length}</span>
-                  </div>
+                  <Textarea
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                    placeholder="Enter context content..."
+                    className="min-h-[100px]"
+                  />
                 </div>
-
-                <div className="space-y-2 pt-4">
-                  {contractData.backstories.map((story, index) => (
-                    <div key={index} className="text-sm flex items-center justify-between group ">
-                      <p>
-                        <span className="font-medium">{story.title}:</span>{' '}
-                        <span className="text-gray-600">{story.content || '(Empty)'}</span>
-                      </p>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditContext(index)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteContext(index)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-6 border-t mt-6">
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={handleCloseDialog}>
+                    Cancel
+                  </Button>
                   <Button
-                    variant="minecraft"
-                    size="lg"
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="w-full"
+                    onClick={handleSaveContext}
+                    disabled={!selectedContextType || !editingContent.trim()}
                   >
-                    {loading ? 'Saving...' : 'Save Changes'}
+                    {editingContextIndex !== null ? 'Save' : 'Add'}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="grid gap-2">
+              <div className="flex items-center text-sm">
+                <span className="font-medium min-w-24">Address:</span>
+                <span className="font-mono">{contractData.address}</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <span className="font-medium min-w-24">Name:</span>
+                <span>{contractData.name}</span>
+              </div>
+              <div className="flex items-start text-sm">
+                <span className="font-medium min-w-24">Description:</span>
+                <span>{contractData.description}</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <span className="font-medium min-w-24">Skills:</span>
+                <span>{contractData.skills.length}</span>
+              </div>
+            </div>
 
-          <div className="flex-1 max-w-2xl">
-            <ContractSkills
-              contractAddress={contractData.address}
-              contractName={contractData.name}
-              onSkillsUpdate={handleSkillsUpdate}
-              initialSkills={contractData.skills}
-            />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="space-y-2 pt-4">
+              {contractData.backstories.map((story, index) => (
+                <div key={index} className="text-sm flex items-center justify-between group">
+                  <p>
+                    <span className="font-medium">{story.title}:</span>{' '}
+                    <span className="text-muted-foreground">{story.content || '(Empty)'}</span>
+                  </p>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditContext(index)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteContext(index)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-6 border-t mt-6">
+              <Button
+                size="lg"
+                onClick={handleSave}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div>
+        <ContractSkills
+          contractAddress={contractData.address}
+          contractName={contractData.name}
+          onSkillsUpdate={handleSkillsUpdate}
+          initialSkills={contractData.skills}
+        />
+      </div>
+
+    </div>
   );
 }
